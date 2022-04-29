@@ -25,7 +25,6 @@ public class ClassModel {
 	}
 
 	private void init(IType type) {
-		// TODO Auto-generated method stub
 		
 	}
 
