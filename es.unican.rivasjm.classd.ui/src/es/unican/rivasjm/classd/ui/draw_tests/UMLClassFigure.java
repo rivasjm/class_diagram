@@ -10,6 +10,8 @@ import org.eclipse.draw2d.MouseMotionListener;
 import org.eclipse.draw2d.ToolbarLayout;
 import org.eclipse.swt.graphics.Color;
 
+import es.unican.rivasjm.classd.ui.diagram.CompartmentFigure;
+
 public class UMLClassFigure extends Figure {
 	
 	public static Color classColor = new Color(null, 255, 255, 206);

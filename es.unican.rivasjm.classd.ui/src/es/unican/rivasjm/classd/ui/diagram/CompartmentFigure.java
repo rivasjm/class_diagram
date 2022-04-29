@@ -1,4 +1,4 @@
-package es.unican.rivasjm.classd.ui.draw_tests;
+package es.unican.rivasjm.classd.ui.diagram;
 
 import org.eclipse.draw2d.AbstractBorder;
 import org.eclipse.draw2d.Figure;
