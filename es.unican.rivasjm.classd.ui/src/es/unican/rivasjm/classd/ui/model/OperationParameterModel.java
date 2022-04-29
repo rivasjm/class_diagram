@@ -1,6 +1,6 @@
 package es.unican.rivasjm.classd.ui.model;
 
-public class AttributeModel {
+public class OperationParameterModel {
 	
 	private String name;
 	private String type;
