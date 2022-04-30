@@ -24,6 +24,8 @@ import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 
+import es.unican.rivasjm.classd.ui.model.ClassDiagramFactory;
+import es.unican.rivasjm.classd.ui.model.ClassDiagramModel;
 import es.unican.rivasjm.classd.ui.utils.JDTUtils;
 
 public class ClassDiagramPart {
@@ -44,51 +46,49 @@ public class ClassDiagramPart {
 			
 			@Override
 			public void dropAccept(DropTargetEvent event) {
-				System.out.println("dropAccept");
-				ISelection selection = LocalSelectionTransfer.getTransfer().getSelection();
-				System.out.println(selection);
+//				System.out.println("dropAccept");
+//				ISelection selection = LocalSelectionTransfer.getTransfer().getSelection();
+//				System.out.println(selection);
 				
 			}
 			
 			@Override
 			public void drop(DropTargetEvent event) {
-				System.out.println("drop");
+//				System.out.println("drop");
 				ISelection selection = LocalSelectionTransfer.getTransfer().getSelection();
 				if (selection != null && selection instanceof TreeSelection) {
 					TreeSelection tselection = (TreeSelection) selection;
 					Object firstElement = tselection.getFirstElement();
 					if (firstElement instanceof IJavaElement) {
-						System.out.println("java element");
-						List<IType> types = JDTUtils.getTypes((IJavaElement) firstElement);
-						System.out.println(types);
-						
+						ClassDiagramModel model = ClassDiagramFactory.create((IJavaElement) firstElement);
+						System.out.println(model.toString());
 					}
 				}
 			}
 			
 			@Override
 			public void dragOver(DropTargetEvent event) {
-				System.out.println("dragOver");
+//				System.out.println("dragOver");
 				event.detail=DND.DROP_COPY;
 				
 			}
 			
 			@Override
 			public void dragOperationChanged(DropTargetEvent event) {
-				System.out.println("dragOperationChanged");
+//				System.out.println("dragOperationChanged");
 				event.detail = DND.DROP_COPY;
 				
 			}
 			
 			@Override
 			public void dragLeave(DropTargetEvent event) {
-				System.out.println("dragLeave");
+//				System.out.println("dragLeave");
 				
 			}
 			
 			@Override
 			public void dragEnter(DropTargetEvent event) {
-				System.out.println("dragEnter");
+//				System.out.println("dragEnter");
 				
 			}
 		});
