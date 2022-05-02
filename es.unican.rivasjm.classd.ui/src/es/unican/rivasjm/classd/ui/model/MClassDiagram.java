@@ -4,15 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class ClassDiagramModel {
+public class MClassDiagram {
 	
-	private final List<ClassModel> classes;
+	private final List<MClass> classes;
+	private final List<MRelationship> relationships;
 	
-	public ClassDiagramModel() {
+	public MClassDiagram() {
 		this.classes = new ArrayList<>();
+		this.relationships = new ArrayList<>();
 	}
 	
-	public void addClass(ClassModel clazz) {
+	public void addClass(MClass clazz) {
 		this.classes.add(Objects.requireNonNull(clazz));
 	}
 

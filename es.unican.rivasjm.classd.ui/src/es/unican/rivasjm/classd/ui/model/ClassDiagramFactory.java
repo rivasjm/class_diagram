@@ -1,94 +1,68 @@
 package es.unican.rivasjm.classd.ui.model;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jdt.core.IField;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.ITypeRoot;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 
-import es.unican.rivasjm.classd.ui.utils.JDTUtils;
+import es.unican.rivasjm.classd.ui.utils.JdtDomUtils;
 
 public class ClassDiagramFactory {
 	
-	public static ClassDiagramModel create(IJavaElement element) {
-		List<IType> types = JDTUtils.getTypes(element);
-		ClassDiagramModel diagramModel = create(types);
-		return diagramModel;
+	final IJavaElement element;
+	final List<TypeDeclaration> knownTypes;
+	
+	public ClassDiagramFactory(IJavaElement element) {
+		this.element = element;
+		this.knownTypes = JdtDomUtils.getTypes(JdtDomUtils.getCompilationUnits(element));
 	}
 	
-	private static ClassDiagramModel create(List<IType> types) {
-		final ClassDiagramModel model = new ClassDiagramModel();
+	public MClassDiagram get() {
+		MClassDiagram diagram = new MClassDiagram();
+		init(diagram);
+		return diagram;
+	}
+	
+	private void init(MClassDiagram diagram) {
+		// TODO Auto-generated method stub
 		
-		for (IType type: types) {
-			ClassModel clazz = new ClassModel();
-			model.addClass(clazz);
-			clazz.setName(type.getElementName());
-			clazz.setQualifiedName(type.getFullyQualifiedName());
-			
-			// operations
-			getOperations(type).forEach(clazz::addOperation);
-			
-			// attributes
-			getAttributes(type).forEach(clazz::addAttribute);
+	}
+
+	private MClass getMClass(TypeDeclaration type) {
+		MClass clazz = new MClass();
+		
+		clazz.setName(type.getName().getIdentifier());
+		clazz.setQualifiedName(type.getName().getFullyQualifiedName());
+		clazz.setInterface(type.isInterface());
+		clazz.setAbstract(Modifier.isAbstract(type.getModifiers()));		7
+		
+		// add methods
+		for (MethodDeclaration method : type.getMethods()) {
+			MOperation operation = getMOperation(method);
+			clazz.addOperation(operation);
 		}
 		
-		return model;
-	}
-	
-	private static List<OperationModel> getOperations(IType type) {
-		List<OperationModel> operations = new ArrayList<>();
-		try {
-			for (IMethod method : type.getMethods()) {
-				OperationModel operation = getOperation(method);
-				operations.add(operation);
-			}
-		} catch (JavaModelException e) {}
-		return operations;
-	}
-	
-	private static OperationModel getOperation(IMethod method) {
-		OperationModel operation = new OperationModel();		
+		// add attributes (ignore references to knownTypes, these will become MReferece's)
+		for (FieldDeclaration field : type.getFields()) {
+			
+		}
 		
-		try {
-			operation.setName(method.getElementName());
-			operation.setType(Signature.toString(method.getReturnType()));
-		} catch (JavaModelException e) {}
+		return clazz;
+	}
+	
+	private static MOperation getMOperation(MethodDeclaration method) {
+		MOperation operation = new MOperation();
+		
+		operation.setName(method.getName().getIdentifier());
+		operation.setType(method.getReturnType2().toString());
 		
 		return operation;
-	}
-	
-	private static List<AttributeModel> getAttributes(IType type) {
-		List<AttributeModel> attributes = new ArrayList<>();
-		
-		try {
-			for (IField field : type.getFields()) {
-				AttributeModel attribute = getAttribute(field);
-				attributes.add(attribute);
-			}
-
-		} catch (JavaModelException e) {}
-		
-		return attributes;
-	}
-
-	private static AttributeModel getAttribute(IField field) {
-		AttributeModel attribute = new AttributeModel();		
-		try {
-			attribute.setName(field.getElementName());
-			attribute.setType(Signature.toString(field.getTypeSignature()));
-			
-			IType type = JDTUtils.getFieldType(field);
-			System.out.println(type);
-						
-		} catch (JavaModelException e) {
-		}
-		
-		return attribute;
 	}
 
 }

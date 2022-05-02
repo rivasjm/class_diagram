@@ -1,6 +1,6 @@
 package es.unican.rivasjm.classd.ui.model;
 
-public class AttributeModel {
+public class MAttribute {
 	
 	private String name;
 	private String type;

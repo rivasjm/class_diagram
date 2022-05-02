@@ -1,7 +1,5 @@
 package es.unican.rivasjm.classd.ui.parts;
 
-import java.util.List;
-
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -10,7 +8,6 @@ import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.ui.di.Focus;
 import org.eclipse.e4.ui.services.IServiceConstants;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IType;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -23,10 +20,6 @@ import org.eclipse.swt.dnd.DropTargetListener;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
-
-import es.unican.rivasjm.classd.ui.model.ClassDiagramFactory;
-import es.unican.rivasjm.classd.ui.model.ClassDiagramModel;
-import es.unican.rivasjm.classd.ui.utils.JDTUtils;
 
 public class ClassDiagramPart {
 	
@@ -60,8 +53,7 @@ public class ClassDiagramPart {
 					TreeSelection tselection = (TreeSelection) selection;
 					Object firstElement = tselection.getFirstElement();
 					if (firstElement instanceof IJavaElement) {
-						ClassDiagramModel model = ClassDiagramFactory.create((IJavaElement) firstElement);
-						System.out.println(model.toString());
+//						ClassDiagramDomFactory.create((IJavaElement) firstElement);
 					}
 				}
 			}

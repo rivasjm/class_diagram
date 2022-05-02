@@ -1,6 +1,10 @@
 package es.unican.rivasjm.classd.ui.utils;
 
+import static java.util.Collections.emptyList;
+
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -9,6 +13,7 @@ import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeHierarchy;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -43,6 +48,44 @@ public class JDTUtils {
 		}
 		
 		return ret;
+	}
+	
+	public static boolean isCollection(IType type) {
+		try {
+			ITypeHierarchy hierarchy = type.newSupertypeHierarchy(new NullProgressMonitor());
+			for (IType inter : hierarchy.getAllInterfaces()) {
+				String qualifiedName = inter.getFullyQualifiedName();
+				if (Collection.class.getName().equals(qualifiedName)) {
+					return true;
+				}
+			}
+			
+		} catch (JavaModelException e) {}
+		return false;
+	}
+	
+	public static IType getCollectionElementType(IType type) {
+		
+		
+		return null;
+	}
+	
+	public static IType getSuperclass(IType type) {
+		try {
+			ITypeHierarchy hierarchy = type.newSupertypeHierarchy(new NullProgressMonitor());
+			return hierarchy.getSuperclass(type);
+		} catch (JavaModelException e) {}
+		
+		return null;
+	}
+	
+	public static List<IType> getSuperInterfaces(IType type) {
+		try {
+			ITypeHierarchy hierarchy = type.newSupertypeHierarchy(new NullProgressMonitor());
+			return Arrays.asList(hierarchy.getAllSuperInterfaces(type));
+		} catch (JavaModelException e) {}
+		
+		return emptyList();
 	}
 	
 	/**
