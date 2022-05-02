@@ -28,6 +28,7 @@ public class ClassDiagramFactory {
 			ClassModel clazz = new ClassModel();
 			model.addClass(clazz);
 			clazz.setName(type.getElementName());
+			clazz.setQualifiedName(type.getFullyQualifiedName());
 			
 			// operations
 			getOperations(type).forEach(clazz::addOperation);
