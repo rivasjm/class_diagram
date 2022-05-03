@@ -87,6 +87,8 @@ public class UMLClassFigureTest {
 		c.setSourceDecoration(decoration);
 
 		/* Adding labels to the connection */
+		
+		// label next to the target (isEnd=true)
 		ConnectionEndpointLocator targetEndpointLocator = new ConnectionEndpointLocator(c, true);
 		targetEndpointLocator.setVDistance(15);
 		Label targetMultiplicityLabel = new Label("1..*");
@@ -98,6 +100,7 @@ public class UMLClassFigureTest {
 		Label sourceMultiplicityLabel = new Label("1");
 		c.add(sourceMultiplicityLabel, sourceEndpointLocator);
 
+		// label next to the target (isEnd=true)
 		ConnectionEndpointLocator relationshipLocator = new ConnectionEndpointLocator(c, true);
 		relationshipLocator.setUDistance(10);
 		relationshipLocator.setVDistance(-20);

@@ -1,5 +1,7 @@
 package es.unican.rivasjm.classd.ui.model;
 
+import static java.util.Collections.unmodifiableList;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -7,6 +9,8 @@ import java.util.Objects;
 
 public class MClass {
 		
+	private MClassDiagram diagram;
+	
 	private String name;
 	private String qualifiedName;
 	private boolean _abstract;
@@ -24,9 +28,18 @@ public class MClass {
 	 * Getters and setters
 	 */
 	
+	public MClassDiagram getDiagram() {
+		return diagram;
+	}
+	
+	void setDiagram(MClassDiagram diagram) {
+		this.diagram = diagram;
+	}	
+	
 	public String getName() {
 		return name;
 	}
+
 
 	public void setName(String name) {
 		this.name = name;
@@ -68,6 +81,15 @@ public class MClass {
 			attributes.add(attribute);
 		}
 	}
+	
+	public List<MAttribute> getAttributes() {
+		return unmodifiableList(attributes);
+	}
+	
+	public List<MOperation> getOperations() {
+		return unmodifiableList(operations);
+	}
+	
 	
 	/*
 	 * Other methods

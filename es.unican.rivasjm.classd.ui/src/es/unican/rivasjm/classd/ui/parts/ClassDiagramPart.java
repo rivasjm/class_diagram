@@ -1,9 +1,5 @@
 package es.unican.rivasjm.classd.ui.parts;
 
-import static java.util.stream.Collectors.toList;
-
-import java.util.Arrays;
-
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -11,100 +7,56 @@ import javax.inject.Named;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.ui.di.Focus;
 import org.eclipse.e4.ui.services.IServiceConstants;
-import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DropTarget;
-import org.eclipse.swt.dnd.DropTargetEvent;
-import org.eclipse.swt.dnd.DropTargetListener;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.zest.core.viewers.GraphViewer;
+import org.eclipse.zest.layouts.LayoutStyles;
+import org.eclipse.zest.layouts.algorithms.TreeLayoutAlgorithm;
 
-import es.unican.rivasjm.classd.ui.model.ClassDiagramFactory;
 import es.unican.rivasjm.classd.ui.model.MClassDiagram;
 
 public class ClassDiagramPart {
 	
-	private Canvas canvas;
+	private GraphViewer graph;
 
 	@PostConstruct
 	public void createPartControl(Composite parent) {
-		canvas = new Canvas(parent, SWT.NONE);
-		initCanvas(canvas);
+		graph = new GraphViewer(parent, SWT.NONE);
+		graph.setContentProvider(ClassDiagramContentProvider.INSTANCE);
+		graph.setLabelProvider(new ClassDiagramLabelProvider());
+		graph.setLayoutAlgorithm(new TreeLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING));
+		
+		initDND(graph.getControl());
 	}
-
-	private void initCanvas(Canvas canvas) {
-		final DropTarget dropTarget = new DropTarget(canvas, DND.DROP_COPY | DND.DROP_DEFAULT);
+	
+	private void initDND(Control control) {
+		final DropTarget dropTarget = new DropTarget(control, DND.DROP_COPY | DND.DROP_DEFAULT);
 		dropTarget.setTransfer(new Transfer[] {LocalSelectionTransfer.getTransfer()});
-		
-		dropTarget.addDropListener(new DropTargetListener() {
-			
-			@Override
-			public void dropAccept(DropTargetEvent event) {
-//				System.out.println("dropAccept");
-//				ISelection selection = LocalSelectionTransfer.getTransfer().getSelection();
-//				System.out.println(selection);
-				
-			}
-			
-			@Override
-			public void drop(DropTargetEvent event) {
-//				System.out.println("drop");
-				ISelection selection = LocalSelectionTransfer.getTransfer().getSelection();
-				if (selection != null && selection instanceof TreeSelection) {
-					TreeSelection tselection = (TreeSelection) selection;
-					
-					IJavaElement[] javaElements = Arrays.stream(tselection.toArray())
-						.filter(s -> s instanceof IJavaElement)
-						.map(s -> (IJavaElement)s)
-						.collect(toList()).toArray(new IJavaElement[0]);
-					
-					ClassDiagramFactory factory = new ClassDiagramFactory(javaElements);
-					MClassDiagram diagram = factory.get();
-					System.out.println(diagram);
-				}
-			}
-			
-			@Override
-			public void dragOver(DropTargetEvent event) {
-//				System.out.println("dragOver");
-				event.detail=DND.DROP_COPY;
-				
-			}
-			
-			@Override
-			public void dragOperationChanged(DropTargetEvent event) {
-//				System.out.println("dragOperationChanged");
-				event.detail = DND.DROP_COPY;
-				
-			}
-			
-			@Override
-			public void dragLeave(DropTargetEvent event) {
-//				System.out.println("dragLeave");
-				
-			}
-			
-			@Override
-			public void dragEnter(DropTargetEvent event) {
-//				System.out.println("dragEnter");
-				
-			}
-		});
-		
+		dropTarget.addDropListener(new ClassDiagramDropTargetListener(this));
 	}
 
+	public void setInput(MClassDiagram diagram) {
+		System.out.println(diagram);
+		graph.setInput(diagram);
+	}
+	
 	@Focus
 	public void setFocus() {
-		canvas.setFocus();
-
+		graph.getGraphControl().setFocus();
+		
 	}
-
+	
+	/*
+	 * Other methods
+	 */
+	
 	/**
 	 * This method is kept for E3 compatiblity. You can remove it if you do not
 	 * mix E3 and E4 code. <br/>

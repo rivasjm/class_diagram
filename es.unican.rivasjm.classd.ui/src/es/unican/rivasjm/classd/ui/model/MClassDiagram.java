@@ -1,5 +1,8 @@
 package es.unican.rivasjm.classd.ui.model;
 
+import static java.util.Collections.unmodifiableList;
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -14,8 +17,17 @@ public class MClassDiagram {
 		this.relationships = new ArrayList<>();
 	}
 	
+	public List<MClass> getClasses() {
+		return unmodifiableList(classes);
+	}
+	
+	public List<MRelationship> getRelationships() {
+		return unmodifiableList(relationships);
+	}
+	
 	public void addClass(MClass clazz) {
 		this.classes.add(Objects.requireNonNull(clazz));
+		clazz.setDiagram(this);
 	}
 	
 	public void addRelationship(MRelationship relationship) {
@@ -29,6 +41,12 @@ public class MClassDiagram {
 		sb.append("\n");
 		relationships.forEach(r -> sb.append(r.toString() + "\n"));
 		return sb.toString();
+	}
+	
+	public List<MRelationship> findRelationships(MClass from, MClass to) {
+		return relationships.stream()
+				.filter(r -> r.getSource().equals(from) && r.getTarget().equals(to))
+				.collect(toList());
 	}
 
 }
