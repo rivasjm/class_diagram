@@ -1,12 +1,15 @@
 package es.unican.rivasjm.classd.ui.utils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -14,11 +17,16 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.PrimitiveType;
+import org.eclipse.jdt.core.dom.QualifiedName;
+import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 public class JdtDomUtils {
 	
@@ -43,8 +51,8 @@ public class JdtDomUtils {
 		return units;
 	}
 	
-	public static List<TypeDeclaration> getTypes(List<ICompilationUnit> units) {
-		final List<TypeDeclaration> types = new ArrayList<>();
+	public static Set<TypeDeclaration> getDeclaredTypes(List<ICompilationUnit> units) {
+		final Set<TypeDeclaration> types = new HashSet<>();
 		
 		for (ICompilationUnit unit : units) {
 			final ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
@@ -64,41 +72,143 @@ public class JdtDomUtils {
 		return types;
 	}
 	
-	public static boolean fieldIsKnown(FieldDeclaration field, List<TypeDeclaration> knownTypes) {
-		Type type = field.getType();
+	public static boolean fieldIsReference(FieldDeclaration field, Set<TypeDeclaration> knownTypes) {
+		ITypeBinding umlBinding = resolveUMLBinding(field.getType());
 		
-		if (type instanceof PrimitiveType) {
-			return false;
-		
-		} else if (type instanceof ArrayType) {
-			
-			
+		for (TypeDeclaration known : knownTypes) {
+			ITypeBinding knownBinding = known.resolveBinding();
+			boolean isKnown = typesAreEquals(knownBinding, umlBinding);
+			if (isKnown) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+	
+	public static ITypeBinding resolveUMLBinding(Type type) {
+		if (type == null) {
+			return null;
 		}
 		
-		return false;
+		if (type.isParameterizedType() && isMultiple(type)) {
+			ParameterizedType pt = (ParameterizedType) type;
+			Type typeArg = (Type) pt.typeArguments().get(0);
+			return resolveUMLBinding(typeArg);
+		
+		} else if (type.isSimpleType() || type.isPrimitiveType()) {
+			return type.resolveBinding();
+		
+		} else if (type.isArrayType()) {
+			ArrayType at = (ArrayType) type;
+			return resolveUMLBinding(at.getElementType());
+		
+		} else {
+			return null;
+		}
 	}
 	
 	public static boolean isMultiple(Type type) {
 		if (type == null) {
 			return false;
+		}
 		
-		} else if (type.isArrayType()) {
+		if (type.isArrayType()) {
 			return true;
-			
+		
 		} else if (type.isParameterizedType()) {
-			ParameterizedType pt = (ParameterizedType) type;
-			if (pt.getType().isSimpleType()) {
-				SimpleType st = (SimpleType) pt.getType();
-				st.resolveBinding()
-			}
-			
+			ITypeBinding binding = type.resolveBinding();
+			return JDTUtils.isCollection((IType) binding.getJavaElement());
 		}
 		
 		return false;
 	}
 	
-	public static void getMultipleType(Type type) {
+//	public static ITypeBinding getMultipleType(Type type) {
+//		if (type == null || !isMultiple(type)) {
+//			return null;
+//			
+//		} else if (type.isParameterizedType()) {
+//			ParameterizedType pt = (ParameterizedType) type;
+//			
+//			@SuppressWarnings("rawtypes")
+//			List args = pt.typeArguments();
+//			if (args.size() == 1 && args.get(0) instanceof Type) {
+//				return ((Type)args.get(0)).resolveBinding();
+//			}
+//			
+//		} else if (type.isArrayType()) {
+//			ArrayType at = (ArrayType) type;
+//			if (at.getElementType() instanceof SimpleType) {
+//				return at.getElementType().resolveBinding();
+//			}
+//		}
+//		
+//		return null;
+//	}
+	
+	public static String getFieldName(FieldDeclaration field) {
+		final StringBuilder sb = new StringBuilder();
+		field.accept(new ASTVisitor() {
+			@Override
+			public boolean visit(VariableDeclarationFragment node) {
+				sb.append(node.getName().getIdentifier());
+				return false;
+			}
+		});
 		
+		return sb.toString();
+	}
+	
+	public static String getTypeString(Type type) {		
+		if (type == null) {
+			return null;
+		}
+		
+		if (type.isPrimitiveType()) {
+			PrimitiveType pt = (PrimitiveType) type;
+			return pt.getPrimitiveTypeCode().toString();
+			
+		} else if (type.isArrayType()) {
+			ArrayType at = (ArrayType) type;
+			return getTypeString(at.getElementType());
+			
+		} else if (type.isSimpleType()) {
+			SimpleType st = (SimpleType) type;
+			return getName(st.getName());
+			
+		} else if (type.isParameterizedType() && isMultiple(type)) {
+			ParameterizedType pt = (ParameterizedType) type;
+			@SuppressWarnings("rawtypes")
+			List typeArguments = pt.typeArguments();
+			Type typeArg = (Type) typeArguments.get(0);
+			return getTypeString(typeArg);
+			
+		} else {
+			return type.toString();
+			
+		}
+	}
+	
+	public static String getName(Name name) {
+		if (name.isSimpleName()) {
+			SimpleName sn = (SimpleName) name;
+			return sn.getIdentifier();
+		
+		} else if (name.isQualifiedName()) {
+			QualifiedName qn = (QualifiedName)name;
+			return getName(qn.getName());
+		}
+		
+		return null;
+	}
+	
+	public static boolean typesAreEquals(ITypeBinding b1, ITypeBinding b2) {
+		if (b1 == null || b2 == null) {
+			return false;
+		}
+		
+		return b1.getQualifiedName().equals(b2.getQualifiedName());
 	}
 
 }

@@ -64,12 +64,6 @@ public class JDTUtils {
 		return false;
 	}
 	
-	public static IType getCollectionElementType(IType type) {
-		
-		
-		return null;
-	}
-	
 	public static IType getSuperclass(IType type) {
 		try {
 			ITypeHierarchy hierarchy = type.newSupertypeHierarchy(new NullProgressMonitor());

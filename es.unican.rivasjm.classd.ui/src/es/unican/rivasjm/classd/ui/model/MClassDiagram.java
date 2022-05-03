@@ -17,11 +17,17 @@ public class MClassDiagram {
 	public void addClass(MClass clazz) {
 		this.classes.add(Objects.requireNonNull(clazz));
 	}
+	
+	public void addRelationship(MRelationship relationship) {
+		this.relationships.add(Objects.requireNonNull(relationship));
+	}
 
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		classes.forEach(c -> sb.append(c.toString() + "\n"));
+		sb.append("\n");
+		relationships.forEach(r -> sb.append(r.toString() + "\n"));
 		return sb.toString();
 	}
 

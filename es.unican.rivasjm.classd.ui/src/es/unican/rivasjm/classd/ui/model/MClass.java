@@ -76,10 +76,11 @@ public class MClass {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("-----\n");
+		sb.append("---------\n");
 		sb.append("Class ").append(name).append(" [").append(qualifiedName).append("]\n");
-		attributes.forEach(a -> sb.append(a.toString() + "\n"));
-		operations.forEach(o -> sb.append(o.toString() + "\n"));
+		attributes.forEach(a -> sb.append(" " + a.toString() + "\n"));
+		sb.append("\n");
+		operations.forEach(o -> sb.append(" " + o.toString() + "\n"));
 		return sb.toString();
 	}
 

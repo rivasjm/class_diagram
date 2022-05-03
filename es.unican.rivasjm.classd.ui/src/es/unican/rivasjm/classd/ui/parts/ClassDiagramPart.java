@@ -1,5 +1,9 @@
 package es.unican.rivasjm.classd.ui.parts;
 
+import static java.util.stream.Collectors.toList;
+
+import java.util.Arrays;
+
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -20,6 +24,9 @@ import org.eclipse.swt.dnd.DropTargetListener;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
+
+import es.unican.rivasjm.classd.ui.model.ClassDiagramFactory;
+import es.unican.rivasjm.classd.ui.model.MClassDiagram;
 
 public class ClassDiagramPart {
 	
@@ -51,10 +58,15 @@ public class ClassDiagramPart {
 				ISelection selection = LocalSelectionTransfer.getTransfer().getSelection();
 				if (selection != null && selection instanceof TreeSelection) {
 					TreeSelection tselection = (TreeSelection) selection;
-					Object firstElement = tselection.getFirstElement();
-					if (firstElement instanceof IJavaElement) {
-//						ClassDiagramDomFactory.create((IJavaElement) firstElement);
-					}
+					
+					IJavaElement[] javaElements = Arrays.stream(tselection.toArray())
+						.filter(s -> s instanceof IJavaElement)
+						.map(s -> (IJavaElement)s)
+						.collect(toList()).toArray(new IJavaElement[0]);
+					
+					ClassDiagramFactory factory = new ClassDiagramFactory(javaElements);
+					MClassDiagram diagram = factory.get();
+					System.out.println(diagram);
 				}
 			}
 			
