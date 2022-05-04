@@ -1,6 +1,5 @@
 package es.unican.rivasjm.classd.ui.parts;
 
-import org.eclipse.draw2d.Connection;
 import org.eclipse.draw2d.ConnectionEndpointLocator;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.Label;
@@ -17,6 +16,7 @@ import org.eclipse.zest.core.widgets.GraphNode;
 
 import es.unican.rivasjm.classd.ui.model.MClass;
 import es.unican.rivasjm.classd.ui.model.MContentionRelationship;
+import es.unican.rivasjm.classd.ui.model.MInheritanceRelationship;
 
 public class ClassDiagramLabelProvider extends LabelProvider implements IFigureProvider, ISelfStyleProvider, IConnectionStyleProvider {
 
@@ -80,8 +80,33 @@ public class ClassDiagramLabelProvider extends LabelProvider implements IFigureP
 
 	@Override
 	public void selfStyleConnection(Object element, GraphConnection connection) {
-		MContentionRelationship rel = (MContentionRelationship) element;
+		if (element instanceof MContentionRelationship) {
+			doStyleContentionRelationship((MContentionRelationship) element, connection);
 		
+		} else if (element instanceof MInheritanceRelationship) {
+			doStyleInheritanceRelationship((MInheritanceRelationship)element, connection);
+		}
+	}
+	
+	private void doStyleInheritanceRelationship(MInheritanceRelationship rel, GraphConnection connection) {
+		if (connection.getConnectionFigure() instanceof PolylineConnection) {
+			PolylineConnection cf = (PolylineConnection) connection.getConnectionFigure();
+			
+			// inheritance decoration
+			{
+				PolygonDecoration decoration = new PolygonDecoration();
+				PointList decorationPointList = new PointList();
+				decorationPointList.addPoint(0, 0);
+				decorationPointList.addPoint(-2, 2);
+				decorationPointList.addPoint(-2, -2);
+				decoration.setFill(false);
+				decoration.setTemplate(decorationPointList);
+				cf.setTargetDecoration(decoration);
+			}
+		}
+	}
+
+	private void doStyleContentionRelationship(MContentionRelationship rel, GraphConnection connection) {
 		if (connection.getConnectionFigure() instanceof PolylineConnection) {
 			PolylineConnection cf = (PolylineConnection) connection.getConnectionFigure();
 			
@@ -105,9 +130,7 @@ public class ClassDiagramLabelProvider extends LabelProvider implements IFigureP
 				Label relationshipLabel = new Label(rel.getName() + " " + rel.getMultiplicity());
 				cf.add(relationshipLabel, relationshipLocator);
 			}
-			
 		}
-		
 	}
 
 	@Override

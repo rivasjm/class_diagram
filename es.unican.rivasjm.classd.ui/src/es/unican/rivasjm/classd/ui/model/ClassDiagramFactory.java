@@ -12,6 +12,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 import es.unican.rivasjm.classd.ui.utils.JdtDomUtils;
@@ -56,7 +57,16 @@ public class ClassDiagramFactory {
 				diagram.addRelationship(relationship);
 			}			
 		}
+		
+		// get class inheritance relationships
+		for (TypeDeclaration type : knownTypes) {
+			List<MInheritanceRelationship> inheritances = getInheritanceRelationships(type);
+			for (MInheritanceRelationship relationship : inheritances) {
+				diagram.addRelationship(relationship);
+			}
+		}
 	}
+
 
 	private MClass getMClass(TypeDeclaration type) {
 		MClass clazz = new MClass();
@@ -135,4 +145,39 @@ public class ClassDiagramFactory {
 		return relationships;
 	}
 
+	private List<MInheritanceRelationship> getInheritanceRelationships(TypeDeclaration type) {
+		final List<MInheritanceRelationship> relationships = new ArrayList<>();
+		final MClass subclass = classes.get(type.resolveBinding().getQualifiedName());
+		
+		// find superclass (there can only be one at most)
+		if (type.getSuperclassType() != null) {
+			String superQN = JdtDomUtils.getQualifiedName(type.getSuperclassType());
+			if (classes.containsKey(superQN)) {
+				MClass superClass = classes.get(superQN);
+				MInheritanceRelationship relationship = new MInheritanceRelationship();
+				relationship.setParent(superClass);
+				relationship.setSubclass(subclass);
+				relationships.add(relationship);
+			}
+		}
+
+		// find super-interfaces (there can be several)
+		if (!type.superInterfaceTypes().isEmpty()) {
+			for (Object interfaceTypeObj : type.superInterfaceTypes()) {
+				if (interfaceTypeObj instanceof Type) {
+					String superQN = JdtDomUtils.getQualifiedName((Type) interfaceTypeObj);
+					if (classes.containsKey(superQN)) {
+						MClass superInterface = classes.get(superQN);
+						MInheritanceRelationship relationship = new MInheritanceRelationship();
+						relationship.setParent(superInterface);
+						relationship.setSubclass(subclass);
+						relationships.add(relationship);
+					}
+				}
+			}
+		}
+		
+		return relationships;
+	}
+	
 }

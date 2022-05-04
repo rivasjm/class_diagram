@@ -203,6 +203,10 @@ public class JdtDomUtils {
 		return null;
 	}
 	
+	public static String getQualifiedName(Type type) {
+		return type.resolveBinding().getQualifiedName();
+	}
+	
 	public static boolean typesAreEquals(ITypeBinding b1, ITypeBinding b2) {
 		if (b1 == null || b2 == null) {
 			return false;
