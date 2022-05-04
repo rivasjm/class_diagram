@@ -7,19 +7,21 @@ public class MInheritanceRelationship extends MRelationship {
 	 */
 	
 	public MClass getParent() {
-		return getTarget();
-	}
-	public void setParent(MClass parent) {
-		setTarget(parent);
-	}
-	public MClass getSubclass() {
 		return getSource();
 	}
-	public void setSubclass(MClass subclass) {
-		setSource(subclass);
+	public void setParent(MClass parent) {
+		setSource(parent);
 	}
+	
+	public MClass getSubclass() {
+		return getTarget();
+	}
+	public void setSubclass(MClass subclass) {
+		setTarget(subclass);
+	}
+	
 	public boolean isImplements() {
-		return getParent().isInterface();
+		return getSource().isInterface();
 	}
 
 }

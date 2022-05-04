@@ -105,7 +105,7 @@ public class ClassDiagramLabelProvider extends LabelProvider implements IFigureP
 				decoration.setBackgroundColor(ColorConstants.white);
 				decoration.setForegroundColor(ColorConstants.black);
 				decoration.setTemplate(decorationPointList);
-				cf.setTargetDecoration(decoration);
+				cf.setSourceDecoration(decoration);
 			}
 		}
 	}

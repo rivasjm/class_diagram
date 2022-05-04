@@ -31,7 +31,24 @@ public class ClassDiagramPart {
 		graph = new GraphViewer(parent, SWT.NONE);
 		graph.setContentProvider(ClassDiagramContentProvider.INSTANCE);
 		graph.setLabelProvider(new ClassDiagramLabelProvider());
+		
 		graph.setLayoutAlgorithm(new TreeLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING));
+
+//		graph.setLayoutAlgorithm(new CompositeLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING,
+//		new LayoutAlgorithm[] {
+//				new TreeLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING),
+//				new HorizontalShift(LayoutStyles.NO_LAYOUT_NODE_RESIZING),
+//		}));
+		
+//		graph.setLayoutAlgorithm(new CompositeLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING,
+//				new LayoutAlgorithm[] {
+//						new DirectedGraphLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING),
+//						new HorizontalShift(LayoutStyles.NO_LAYOUT_NODE_RESIZING),
+//				}));
+//
+//		graph.setLayoutAlgorithm(new DirectedGraphLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING));
+
+//		graph.setLayoutAlgorithm(new HorizontalTreeLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING));
 		
 		initDND(graph.getControl());
 	}
