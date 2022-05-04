@@ -3,10 +3,11 @@ package es.unican.rivasjm.classd.ui.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MOperation {
+public class MOperation extends MElement {
 
 	private String name;
 	private String type;
+	private EVisibility visibility = EVisibility.PUBLIC;
 	
 	private final List<MOperationParameter> parameters;
 	
@@ -30,6 +31,14 @@ public class MOperation {
 		this.type = type;
 	}
 	
+	public EVisibility getVisibility() {
+		return visibility;
+	}
+
+	public void setVisibility(EVisibility visibility) {
+		this.visibility = visibility;
+	}
+	
 	public void addParameter(MOperationParameter parameter) {
 		if (parameter != null) {
 			parameters.add(parameter);
@@ -38,7 +47,7 @@ public class MOperation {
 
 	@Override
 	public String toString() {
-		return name + "() : " + type;
+		return visibility.getSymbol() + name + "() : " + type;
 	}
 	
 }

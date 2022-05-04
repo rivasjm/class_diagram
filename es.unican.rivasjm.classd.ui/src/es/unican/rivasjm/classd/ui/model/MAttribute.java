@@ -1,9 +1,10 @@
 package es.unican.rivasjm.classd.ui.model;
 
-public class MAttribute {
+public class MAttribute extends MElement {
 	
 	private String name;
 	private String type;
+	private EVisibility visibility = EVisibility.PUBLIC;
 
 	public String getName() {
 		return name;
@@ -21,11 +22,17 @@ public class MAttribute {
 		this.type = type;
 	}
 
+	public EVisibility getVisibility() {
+		return visibility;
+	}
+
+	public void setVisibility(EVisibility visibility) {
+		this.visibility = visibility;
+	}
+
 	@Override
 	public String toString() {
-		return name + " : " + type;
+		return visibility.getSymbol() + name + " : " + type;
 	}
-	
-	
 
 }

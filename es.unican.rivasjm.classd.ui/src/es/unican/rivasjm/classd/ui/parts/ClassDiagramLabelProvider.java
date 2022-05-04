@@ -8,6 +8,7 @@ import org.eclipse.draw2d.ManhattanConnectionRouter;
 import org.eclipse.draw2d.PolygonDecoration;
 import org.eclipse.draw2d.PolylineConnection;
 import org.eclipse.draw2d.geometry.PointList;
+import org.eclipse.jface.resource.ResourceManager;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.zest.core.viewers.IConnectionStyleProvider;
@@ -23,6 +24,12 @@ import es.unican.rivasjm.classd.ui.model.MInheritanceRelationship;
 
 public class ClassDiagramLabelProvider extends LabelProvider implements IFigureProvider, ISelfStyleProvider, IConnectionStyleProvider {
 
+	private final ResourceManager resManager;
+
+	public ClassDiagramLabelProvider(ResourceManager resManager) {
+		this.resManager = resManager;
+	}
+	
 	/*
 	 * Classes Style
 	 */
@@ -30,7 +37,7 @@ public class ClassDiagramLabelProvider extends LabelProvider implements IFigureP
 	@Override
 	public IFigure getFigure(Object element) {
 		if (element instanceof MClass) {
-			ClassFigure figure = new ClassFigure((MClass) element);
+			ClassFigure figure = new ClassFigure((MClass) element, resManager);
 			figure.setSize(figure.getPreferredSize());
 			return figure;
 		}

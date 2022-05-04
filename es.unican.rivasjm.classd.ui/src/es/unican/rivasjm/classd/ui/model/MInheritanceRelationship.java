@@ -23,5 +23,9 @@ public class MInheritanceRelationship extends MRelationship {
 	public boolean isImplements() {
 		return getSource().isInterface();
 	}
+	@Override
+	public String toString() {
+		return getParent().getName() + " <|-- " + getSubclass().getName();
+	}
 
 }

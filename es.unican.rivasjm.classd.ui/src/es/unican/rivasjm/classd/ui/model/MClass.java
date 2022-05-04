@@ -7,14 +7,15 @@ import java.util.List;
 import java.util.Objects;
 
 
-public class MClass {
-		
+public class MClass extends MElement {
+	
+	private static final String INTERFACE_PREFIX = "<<interface>>";
+	
 	private MClassDiagram diagram;
 	
 	private String name;
 	private String qualifiedName;
-	private boolean _abstract;
-	private boolean _interface;
+	private boolean isInterface = false;
 	
 	private final List<MAttribute> attributes;
 	private final List<MOperation> operations;
@@ -37,7 +38,12 @@ public class MClass {
 	}	
 	
 	public String getName() {
-		return name;
+		StringBuilder sb = new StringBuilder();
+		if (isInterface()) {
+			sb.append(INTERFACE_PREFIX + " ");
+		}
+		sb.append(name);
+		return sb.toString();
 	}
 
 
@@ -45,20 +51,12 @@ public class MClass {
 		this.name = name;
 	}
 
-	public boolean isAbstract() {
-		return _abstract;
-	}
-
-	public void setAbstract(boolean _abstract) {
-		this._abstract = _abstract;
-	}
-
 	public boolean isInterface() {
-		return _interface;
+		return isInterface;
 	}
 
 	public void setInterface(boolean _interface) {
-		this._interface = _interface;
+		this.isInterface = _interface;
 	}
 	
 	public String getQualifiedName() {

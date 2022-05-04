@@ -105,6 +105,7 @@ public class ClassDiagramFactory {
 			typeString += "[]";
 		}
 		operation.setType(typeString);
+		operation.setVisibility(getVibility(method.getModifiers()));
 		
 		return operation;
 	}
@@ -118,6 +119,7 @@ public class ClassDiagramFactory {
 			typeString += "[]";
 		}
 		attr.setType(typeString);
+		attr.setVisibility(getVibility(field.getModifiers()));
 		
 		return attr;
 	}
@@ -178,6 +180,20 @@ public class ClassDiagramFactory {
 		}
 		
 		return relationships;
+	}
+	
+	private static EVisibility getVibility(int modifiers) {
+		if (Modifier.isPublic(modifiers)) {
+			return EVisibility.PUBLIC;
+		
+		} else if (Modifier.isProtected(modifiers)) {
+			return EVisibility.PROTECTED;
+		
+		} else if (Modifier.isPrivate(modifiers)) {
+			return EVisibility.PRIVATE;
+		}
+		
+		return EVisibility.PACKAGE;
 	}
 	
 }

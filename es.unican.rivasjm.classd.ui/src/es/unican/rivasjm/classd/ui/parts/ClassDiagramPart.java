@@ -7,6 +7,9 @@ import javax.inject.Named;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.ui.di.Focus;
 import org.eclipse.e4.ui.services.IServiceConstants;
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.resource.LocalResourceManager;
+import org.eclipse.jface.resource.ResourceManager;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -25,13 +28,17 @@ import es.unican.rivasjm.classd.ui.model.MClassDiagram;
 public class ClassDiagramPart {
 	
 	private GraphViewer graph;
+	
+	private ResourceManager resManager;
 
 	@PostConstruct
 	public void createPartControl(Composite parent) {
+		resManager = new LocalResourceManager(JFaceResources.getResources(), parent);
+		
 		graph = new GraphViewer(parent, SWT.NONE);
 		graph.setContentProvider(ClassDiagramContentProvider.INSTANCE);
-		graph.setLabelProvider(new ClassDiagramLabelProvider());
-		
+		graph.setLabelProvider(new ClassDiagramLabelProvider(resManager));
+	
 		graph.setLayoutAlgorithm(new TreeLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING));
 
 //		graph.setLayoutAlgorithm(new CompositeLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING,
