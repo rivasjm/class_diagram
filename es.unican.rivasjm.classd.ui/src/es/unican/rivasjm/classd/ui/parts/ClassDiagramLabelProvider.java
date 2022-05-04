@@ -1,8 +1,10 @@
 package es.unican.rivasjm.classd.ui.parts;
 
+import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.ConnectionEndpointLocator;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.Label;
+import org.eclipse.draw2d.ManhattanConnectionRouter;
 import org.eclipse.draw2d.PolygonDecoration;
 import org.eclipse.draw2d.PolylineConnection;
 import org.eclipse.draw2d.geometry.PointList;
@@ -13,6 +15,7 @@ import org.eclipse.zest.core.viewers.IFigureProvider;
 import org.eclipse.zest.core.viewers.ISelfStyleProvider;
 import org.eclipse.zest.core.widgets.GraphConnection;
 import org.eclipse.zest.core.widgets.GraphNode;
+import org.eclipse.zest.core.widgets.ZestStyles;
 
 import es.unican.rivasjm.classd.ui.model.MClass;
 import es.unican.rivasjm.classd.ui.model.MContentionRelationship;
@@ -46,31 +49,26 @@ public class ClassDiagramLabelProvider extends LabelProvider implements IFigureP
 
 	@Override
 	public int getConnectionStyle(Object rel) {
-		// TODO Auto-generated method stub
-		return 0;
+		return ZestStyles.CONNECTIONS_SOLID;
 	}
 
 	@Override
 	public Color getColor(Object rel) {
-		// TODO Auto-generated method stub
-		return null;
+		return ColorConstants.black;
 	}
 
 	@Override
 	public Color getHighlightColor(Object rel) {
-		// TODO Auto-generated method stub
-		return null;
+		return ColorConstants.black;
 	}
 
 	@Override
 	public int getLineWidth(Object rel) {
-		// TODO Auto-generated method stub
-		return 0;
+		return 1;
 	}
 
 	@Override
 	public IFigure getTooltip(Object entity) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	
@@ -80,6 +78,11 @@ public class ClassDiagramLabelProvider extends LabelProvider implements IFigureP
 
 	@Override
 	public void selfStyleConnection(Object element, GraphConnection connection) {
+		if (connection.getConnectionFigure() instanceof PolylineConnection) {
+			PolylineConnection cf = (PolylineConnection) connection.getConnectionFigure();
+			cf.setConnectionRouter(new ManhattanConnectionRouter());
+		}
+		
 		if (element instanceof MContentionRelationship) {
 			doStyleContentionRelationship((MContentionRelationship) element, connection);
 		
@@ -97,9 +100,10 @@ public class ClassDiagramLabelProvider extends LabelProvider implements IFigureP
 				PolygonDecoration decoration = new PolygonDecoration();
 				PointList decorationPointList = new PointList();
 				decorationPointList.addPoint(0, 0);
-				decorationPointList.addPoint(-2, 2);
-				decorationPointList.addPoint(-2, -2);
-				decoration.setFill(false);
+				decorationPointList.addPoint(-1, 1);
+				decorationPointList.addPoint(-1, -1);
+				decoration.setBackgroundColor(ColorConstants.white);
+				decoration.setForegroundColor(ColorConstants.black);
 				decoration.setTemplate(decorationPointList);
 				cf.setTargetDecoration(decoration);
 			}
@@ -115,9 +119,11 @@ public class ClassDiagramLabelProvider extends LabelProvider implements IFigureP
 				PolygonDecoration decoration = new PolygonDecoration();
 				PointList decorationPointList = new PointList();
 				decorationPointList.addPoint(0, 0);
-				decorationPointList.addPoint(-2, 2);
-				decorationPointList.addPoint(-4, 0);
-				decorationPointList.addPoint(-2, -2);
+				decorationPointList.addPoint(-1, 1);
+				decorationPointList.addPoint(-2, 0);
+				decorationPointList.addPoint(-1, -1);
+				decoration.setForegroundColor(ColorConstants.black);
+				decoration.setBackgroundColor(ColorConstants.black);
 				decoration.setTemplate(decorationPointList);
 				cf.setSourceDecoration(decoration);
 			}
