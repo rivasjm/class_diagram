@@ -6,8 +6,8 @@ import org.eclipse.zest.layouts.dataStructures.InternalRelationship;
 
 public class IncreaseSpacingLayoutAlgorithm extends AbstractLayoutAlgorithm {
 	
-	private static final double DELTA_X = 40;
-	private static final double DELTA_Y = 80;
+//	private static final double DELTA_X = 40;
+//	private static final double DELTA_Y = 80;
 
 	public IncreaseSpacingLayoutAlgorithm(int styles) {
 		super(styles);
