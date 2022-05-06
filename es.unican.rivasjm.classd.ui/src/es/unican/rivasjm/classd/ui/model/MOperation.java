@@ -2,12 +2,14 @@ package es.unican.rivasjm.classd.ui.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MOperation extends MElement {
 
 	private String name;
 	private String type;
 	private EVisibility visibility = EVisibility.PUBLIC;
+	private boolean constructor;
 	
 	private final List<MOperationParameter> parameters;
 	
@@ -39,6 +41,14 @@ public class MOperation extends MElement {
 		this.visibility = visibility;
 	}
 	
+	public boolean isConstructor() {
+		return constructor;
+	}
+
+	public void setConstructor(boolean constructor) {
+		this.constructor = constructor;
+	}
+
 	public void addParameter(MOperationParameter parameter) {
 		if (parameter != null) {
 			parameters.add(parameter);
@@ -47,7 +57,8 @@ public class MOperation extends MElement {
 
 	@Override
 	public String toString() {
-		return visibility.getSymbol() + name + "() : " + type;
+		String paramsString = "(" + parameters.stream().map(p -> p.toString()).collect(Collectors.joining(", ")) + ")";
+		return visibility.getSymbol() + name + paramsString + " : " + (!constructor ? type : "");
 	}
 	
 }

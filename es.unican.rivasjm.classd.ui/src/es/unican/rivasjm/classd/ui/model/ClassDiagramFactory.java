@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 
@@ -155,6 +156,19 @@ public class ClassDiagramFactory {
 		}
 		operation.setType(typeString);
 		operation.setVisibility(getVibility(method.getModifiers()));
+		operation.setConstructor(method.isConstructor());
+		
+		// parameters
+		for (Object object : method.parameters()) {
+			if (object instanceof SingleVariableDeclaration) {
+				MOperationParameter param = new MOperationParameter();
+				SingleVariableDeclaration svd = (SingleVariableDeclaration) object;
+				
+				param.setName(JdtDomUtils.getName(svd.getName()));
+				param.setType(JdtDomUtils.getTypeString(svd.getType()));
+				operation.addParameter(param);
+			}
+		}
 		
 		return operation;
 	}

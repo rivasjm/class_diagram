@@ -106,6 +106,10 @@ public class JdtDomUtils {
 			ParameterizedType pt = (ParameterizedType) type;
 			Type typeArg = (Type) pt.typeArguments().get(0);
 			return resolveUMLBinding(typeArg);
+			
+		} else if (type.isParameterizedType()) {
+			ParameterizedType pt = (ParameterizedType) type;
+			return resolveUMLBinding(pt.getType());
 		
 		} else if (type.isSimpleType() || type.isPrimitiveType()) {
 			return type.resolveBinding();

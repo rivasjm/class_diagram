@@ -4,6 +4,7 @@ import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.Label;
 import org.eclipse.draw2d.LineBorder;
+import org.eclipse.draw2d.PositionConstants;
 import org.eclipse.draw2d.ToolbarLayout;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
@@ -45,6 +46,12 @@ public class ClassFigure extends Figure {
 	private void fill() {
 		// title
 		{
+			if (clazz.isInterface()) {
+				add(new Label("<<interface>>"));
+			} else if (clazz instanceof MEnum) {
+				add(new Label("<<enumeration>>"));
+			}
+			
 			Label label = new Label(clazz.getName());
 			setFontStyle(label, clazz);
 			add(label);

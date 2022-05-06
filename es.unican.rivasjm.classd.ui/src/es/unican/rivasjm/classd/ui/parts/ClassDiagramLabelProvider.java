@@ -140,7 +140,7 @@ public class ClassDiagramLabelProvider extends LabelProvider implements IFigureP
 				ConnectionEndpointLocator relationshipLocator = new ConnectionEndpointLocator(cf, true);
 				relationshipLocator.setUDistance(10);
 				relationshipLocator.setVDistance(-5);
-				Label relationshipLabel = new Label(rel.getName() + " " + rel.getMultiplicity());
+				Label relationshipLabel = new Label(rel.getVisibility().getSymbol() + rel.getName() + " " + rel.getMultiplicity());
 				cf.add(relationshipLabel, relationshipLocator);
 			}
 		}

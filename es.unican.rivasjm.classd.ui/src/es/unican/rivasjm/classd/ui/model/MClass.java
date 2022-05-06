@@ -38,12 +38,7 @@ public class MClass extends MElement {
 	}	
 	
 	public String getName() {
-		StringBuilder sb = new StringBuilder();
-		if (isInterface()) {
-			sb.append(INTERFACE_PREFIX + " ");
-		}
-		sb.append(name);
-		return sb.toString();
+		return name;
 	}
 
 
