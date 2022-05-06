@@ -6,6 +6,7 @@
       <tags>categoryTag:Class Diagram</tags>
       <toolbar xmi:id="_3OcBwM1PEeyogbUYxMsbWw" elementId="es.unican.rivasjm.classd.ui.toolbar.0">
         <children xsi:type="menu:DirectToolItem" xmi:id="_4TIY8M1PEeyogbUYxMsbWw" elementId="es.unican.rivasjm.classd.ui.saveimage" iconURI="platform:/plugin/es.unican.rivasjm.classd.ui/icons/camera.png" contributionURI="bundleclass://es.unican.rivasjm.classd.ui/es.unican.rivasjm.classd.ui.parts.handlers.SaveImageHandler"/>
+        <children xsi:type="menu:DirectToolItem" xmi:id="_EvXL8M1XEeyogbUYxMsbWw" elementId="es.unican.rivasjm.classd.ui.clear" iconURI="platform:/plugin/org.eclipse.jdt.ui/icons/full/elcl16/clear_co.png" contributionURI="bundleclass://es.unican.rivasjm.classd.ui/es.unican.rivasjm.classd.ui.parts.handlers.ClearPart"/>
       </toolbar>
     </elements>
   </fragments>

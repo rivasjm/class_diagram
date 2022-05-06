@@ -75,6 +75,7 @@ public class ClassDiagramPart {
 	}
 
 	public void setInput(MClassDiagram diagram) {
+		System.out.println(diagram.toString());
 		graph.setInput(diagram);
 	}
 	
@@ -172,5 +173,9 @@ public class ClassDiagramPart {
 		// Test if label exists (inject methods are called before PostConstruct)
 //		if (myLabelInView != null)
 //			myLabelInView.setText("This is a multiple selection of " + selectedObjects.length + " objects");
+	}
+
+	public void clear() {
+		graph.setInput(null);
 	}
 }

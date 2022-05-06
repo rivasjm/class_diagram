@@ -19,7 +19,8 @@ Require-Bundle: javax.inject,
  org.eclipse.zest.core,
  org.eclipse.zest.layouts,
  org.eclipse.e4.core.di,
- org.eclipse.e4.core.contexts
+ org.eclipse.e4.core.contexts,
+ org.eclipse.jdt.ui;bundle-version="3.26.0.v20220222-0629"
 Import-Package: javax.annotation;version="1.2.0",
  javax.inject;version="1.0.0"
 Bundle-ActivationPolicy: lazy

@@ -50,6 +50,9 @@ public class ClassDiagramDropTargetListener implements DropTargetListener{
 		if (selection != null && selection instanceof TreeSelection) {
 			TreeSelection tselection = (TreeSelection) selection;
 			
+			System.out.println(tselection.getFirstElement().getClass());
+			
+			
 			IJavaElement[] javaElements = Arrays.stream(tselection.toArray())
 				.filter(s -> s instanceof IJavaElement)
 				.map(s -> (IJavaElement)s)
