@@ -8,10 +8,12 @@ import java.util.Set;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.IParent;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -39,9 +41,9 @@ public class JdtDomUtils {
 		if (element instanceof ICompilationUnit) {
 			units.add((ICompilationUnit) element);
 		
-		} else if (element instanceof IPackageFragment) {
+		} else if (element instanceof IJavaProject || element instanceof IPackageFragmentRoot || element instanceof IPackageFragment) {
 			try {
-				for (IJavaElement child : ((IPackageFragment) element).getChildren()) {
+				for (IJavaElement child : ((IParent) element).getChildren()) {
 					units.addAll(getCompilationUnits(child));
 				}
 				
@@ -55,7 +57,7 @@ public class JdtDomUtils {
 		final Set<TypeDeclaration> types = new HashSet<>();
 		
 		for (ICompilationUnit unit : units) {
-			final ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
+			final ASTParser parser = ASTParser.newParser(JDTUtils.getLatestJLSLevel());
 			parser.setResolveBindings(true);
 			parser.setSource(unit);
 			final ASTNode node = parser.createAST(new NullProgressMonitor());

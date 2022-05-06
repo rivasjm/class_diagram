@@ -2,6 +2,8 @@ package es.unican.rivasjm.classd.ui.utils;
 
 import static java.util.Collections.emptyList;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -91,7 +93,7 @@ public class JDTUtils {
 	 * @return the {@link IType}
 	 */
 	public static IType getFieldType(final IField field) {
-		final ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
+		final ASTParser parser = ASTParser.newParser(getLatestJLSLevel());
 		parser.setResolveBindings(true);
 	    parser.setSource(field.getCompilationUnit());
 	    final ASTNode unitNode = parser.createAST(new NullProgressMonitor());
@@ -124,5 +126,45 @@ public class JDTUtils {
 			return fieldType;
 		}
 	}
-
+	
+	static int getLatestJLSLevel() {
+		Class<?> clazz = AST.class;
+		
+		// try calling getLatestJLS (this is the latest API)
+		try {
+			Method method = clazz.getMethod("getJLSLatest");
+			Object level = method.invoke(clazz);
+			if (level instanceof Integer) {
+				return (Integer)level;
+			}
+		} catch (Exception e) {
+		}
+		
+		// try accessing JLS_Latest
+		try {
+			Field field = clazz.getField("JLS_Latest");
+			field.setAccessible(true);
+			Object level = field.get(clazz);
+			if (level instanceof Integer) {
+				return (Integer)level;
+			}
+		} catch (Exception e) {
+		}
+		
+		// try accessing the highest JLSx value available, starting from 11
+		for (int i=11; i>0; i--) {
+			try {	
+				Field field = clazz.getField("JLS" + i);
+				field.setAccessible(true);
+				Object level = field.get(clazz);
+				if (level instanceof Integer) {
+					return (Integer)level;
+				}
+			} catch (Exception e) {
+			}
+		}
+		
+		// if absolutely everything fails, return hard-coded value 4, which should be JLS4
+		return 4;
+	}
 }
