@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="ASCII"?>
-<fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/descriptor/basic" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmi:id="_BxaXACerEeWxCPrV0pAZQQ">
+<fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/descriptor/basic" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu" xmi:id="_BxaXACerEeWxCPrV0pAZQQ">
   <fragments xsi:type="fragment:StringModelFragment" xmi:id="_EI7oACerEeWxCPrV0pAZQQ" featurename="descriptors" parentElementId="xpath:/">
-    <elements xsi:type="basic:PartDescriptor" xmi:id="_KMklcCerEeWxCPrV0pAZQQ" elementId="test.partDescFragment.ASampleE4View" label="Class Diagram" iconURI="platform:/plugin/es.unican.rivasjm.classd.ui/icons/Sample.png" tooltip="" category="General" closeable="true" contributionURI="bundleclass://es.unican.rivasjm.classd.ui/es.unican.rivasjm.classd.ui.parts.ClassDiagramPart">
+    <elements xsi:type="basic:PartDescriptor" xmi:id="_KMklcCerEeWxCPrV0pAZQQ" elementId="es.unican.rivasjm.classd.ui.classfigurepart" label="Class Diagram" iconURI="platform:/plugin/es.unican.rivasjm.classd.ui/icons/Sample.png" tooltip="" category="General" closeable="true" contributionURI="bundleclass://es.unican.rivasjm.classd.ui/es.unican.rivasjm.classd.ui.parts.ClassDiagramPart">
       <tags>View</tags>
       <tags>categoryTag:Class Diagram</tags>
+      <toolbar xmi:id="_3OcBwM1PEeyogbUYxMsbWw" elementId="es.unican.rivasjm.classd.ui.toolbar.0">
+        <children xsi:type="menu:DirectToolItem" xmi:id="_4TIY8M1PEeyogbUYxMsbWw" elementId="es.unican.rivasjm.classd.ui.saveimage" iconURI="platform:/plugin/es.unican.rivasjm.classd.ui/icons/camera.png" contributionURI="bundleclass://es.unican.rivasjm.classd.ui/es.unican.rivasjm.classd.ui.parts.handlers.SaveImageHandler"/>
+      </toolbar>
     </elements>
   </fragments>
 </fragment:ModelFragments>

@@ -6,6 +6,7 @@ import javax.inject.Named;
 
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.ui.di.Focus;
+import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.e4.ui.services.IServiceConstants;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
@@ -17,6 +18,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DropTarget;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.ImageLoader;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.zest.core.viewers.GraphViewer;
@@ -32,7 +38,9 @@ public class ClassDiagramPart {
 	private ResourceManager resManager;
 
 	@PostConstruct
-	public void createPartControl(Composite parent) {
+	public void createPartControl(Composite parent, MPart part) {
+		part.getContext().set(ClassDiagramPart.class, this); // make it available to tool-bar items
+		
 		resManager = new LocalResourceManager(JFaceResources.getResources(), parent);
 		
 		graph = new GraphViewer(parent, SWT.NONE);
@@ -67,7 +75,6 @@ public class ClassDiagramPart {
 	}
 
 	public void setInput(MClassDiagram diagram) {
-		System.out.println(diagram);
 		graph.setInput(diagram);
 	}
 	
@@ -75,6 +82,28 @@ public class ClassDiagramPart {
 	public void setFocus() {
 		graph.getGraphControl().setFocus();
 		
+	}
+	
+	public boolean saveAsImage(String path) {
+		boolean correct = false;
+		final GC gc = new GC(graph.getControl());
+		final Rectangle bounds = graph.getControl().getBounds();
+		Image image = new Image(graph.getControl().getDisplay(), bounds);
+		try {
+		    gc.copyArea(image, 0, 0);
+		    ImageLoader imageLoader = new ImageLoader();
+		    imageLoader.data = new ImageData[] { image.getImageData() };
+		    imageLoader.save(path, SWT.IMAGE_PNG);
+		    correct = true;
+		
+		} catch (Exception e) {
+			
+		} finally {
+		    image.dispose();
+		    gc.dispose();
+		}
+		
+		return correct;
 	}
 	
 	/*
