@@ -1,14 +1,20 @@
 package es.unican.rivasjm.classd.ui.model;
 
+import static java.util.stream.Collectors.toList;
+
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
+import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -20,20 +26,19 @@ import es.unican.rivasjm.classd.ui.utils.JdtDomUtils;
 public class ClassDiagramFactory {
 	
 	final IJavaElement[] elements;
-	final Set<TypeDeclaration> knownTypes;
+	final Set<AbstractTypeDeclaration> knownTypes;  // classes and enums
 	
 	private Map<String, MClass> classes;
 	
 	public ClassDiagramFactory(IJavaElement... elements) {
 		this.elements = elements;
 		
-		List<ICompilationUnit> cunits = new ArrayList<ICompilationUnit>();
+		Set<ICompilationUnit> cunits = new HashSet<ICompilationUnit>();
 		for (IJavaElement element: elements) {
 			cunits.addAll(JdtDomUtils.getCompilationUnits(element));
 		}
 		
-		this.knownTypes = JdtDomUtils.getDeclaredTypes(cunits);
-		
+		this.knownTypes = JdtDomUtils.getDeclaredTypesAndEnums(cunits);
 		classes = new HashMap<>();
 	}
 	
@@ -45,28 +50,41 @@ public class ClassDiagramFactory {
 	
 	private void init(MClassDiagram diagram) {
 		// get classes (i.e. nodes)
-		for (TypeDeclaration type : knownTypes) {
-			MClass mClass = getMClass(type);
-			diagram.addClass(mClass);
+		for (AbstractTypeDeclaration type : knownTypes) {
+			MClass mClass = null; 
+			
+			if (type instanceof TypeDeclaration) {
+				mClass = getMClass((TypeDeclaration) type);
+				diagram.addClass(mClass);
+			
+			} else if (type instanceof EnumDeclaration) {
+				mClass = getMEnum((EnumDeclaration) type);
+				diagram.addClass(mClass);
+			}
+			
+			if (mClass != null) {
+				classes.put(mClass.getQualifiedName(), mClass);
+			}
 		}
 		
 		// get class contention relationships
-		for (TypeDeclaration type : knownTypes) {
-			List<MContentionRelationship> contentions = getContentionRelationships(type);
-			for (MContentionRelationship relationship : contentions) {
+		for (AbstractTypeDeclaration type : knownTypes) {
+			List<MAssociationRelationship> associations = getAssociationRelationships(type);
+			for (MAssociationRelationship relationship : associations) {
 				diagram.addRelationship(relationship);
 			}			
 		}
 		
 		// get class inheritance relationships
-		for (TypeDeclaration type : knownTypes) {
-			List<MInheritanceRelationship> inheritances = getInheritanceRelationships(type);
-			for (MInheritanceRelationship relationship : inheritances) {
-				diagram.addRelationship(relationship);
+		for (AbstractTypeDeclaration type : knownTypes) {
+			if (type instanceof TypeDeclaration) {
+				List<MInheritanceRelationship> inheritances = getInheritanceRelationships((TypeDeclaration) type);
+				for (MInheritanceRelationship relationship : inheritances) {
+					diagram.addRelationship(relationship);
+				}
 			}
 		}
 	}
-
 
 	private MClass getMClass(TypeDeclaration type) {
 		MClass clazz = new MClass();
@@ -76,7 +94,6 @@ public class ClassDiagramFactory {
 		clazz.setInterface(type.isInterface());
 		clazz.setAbstract(Modifier.isAbstract(type.getModifiers()));
 		
-		classes.put(clazz.getQualifiedName(), clazz);
 		
 		// add methods
 		for (MethodDeclaration method : type.getMethods()) {
@@ -87,7 +104,39 @@ public class ClassDiagramFactory {
 		// add attributes
 		// ignore attributes of "known" type (those should be MContentionRelationship's, i.e., arrows)
 		for (FieldDeclaration field : type.getFields()) {
-			if (!JdtDomUtils.fieldIsReference(field, knownTypes)) {
+			if (!fieldIsReference(field)) {
+				MAttribute attr = getMAttribute(field);
+				clazz.addAttribute(attr);				
+			}
+		}
+		
+		return clazz;
+	}
+	
+
+	@SuppressWarnings("unchecked")
+	private MClass getMEnum(EnumDeclaration type) {
+		MEnum clazz = new MEnum();
+		
+		clazz.setName(type.getName().getIdentifier());		
+		clazz.setQualifiedName(type.resolveBinding().getQualifiedName());
+		
+		// add values
+		type.enumConstants().stream()
+			.filter(o -> o instanceof EnumConstantDeclaration)
+			.map(e -> JdtDomUtils.getName(((EnumConstantDeclaration) e).getName()))
+			.forEach(n -> clazz.addValue((String) n));
+				
+		// add methods
+		for (MethodDeclaration method : JdtDomUtils.getMethodDeclarations(type)) {
+			MOperation operation = getMOperation(method);
+			clazz.addOperation(operation);
+		}
+		
+		// add attributes
+		// ignore attributes of "known" type (those should be MContentionRelationship's, i.e., arrows)
+		for (FieldDeclaration field : JdtDomUtils.getFieldDeclarations(type)) {
+			if (!fieldIsReference(field)) {
 				MAttribute attr = getMAttribute(field);
 				clazz.addAttribute(attr);				
 			}
@@ -124,18 +173,18 @@ public class ClassDiagramFactory {
 		return attr;
 	}
 	
-	private List<MContentionRelationship> getContentionRelationships(TypeDeclaration type) {
-		List<MContentionRelationship> relationships = new ArrayList<>();
+	private List<MAssociationRelationship> getAssociationRelationships(AbstractTypeDeclaration type) {
+		List<MAssociationRelationship> relationships = new ArrayList<>();
 		MClass source = classes.get(type.resolveBinding().getQualifiedName());
 		
-		for (FieldDeclaration field : type.getFields()) {
+		for (FieldDeclaration field : JdtDomUtils.getFieldDeclarations(type)) {
 			String fieldName = JdtDomUtils.getFieldName(field);
 			
-			if (JdtDomUtils.fieldIsReference(field, knownTypes)) {
+			if (fieldIsReference(field)) {
 				ITypeBinding fieldType = JdtDomUtils.resolveUMLBinding(field.getType());
 				MClass target = classes.get(fieldType.getQualifiedName());
 				
-				MContentionRelationship r = new MContentionRelationship();
+				MAssociationRelationship r = new MAssociationRelationship();
 				r.setSource(source);
 				r.setTarget(target);
 				r.setName(fieldName);
@@ -194,6 +243,11 @@ public class ClassDiagramFactory {
 		}
 		
 		return EVisibility.PACKAGE;
+	}
+	
+	private boolean fieldIsReference(FieldDeclaration field) {
+		ITypeBinding type = JdtDomUtils.resolveUMLBinding(field.getType());
+		return classes.containsKey(type.getQualifiedName());
 	}
 	
 }

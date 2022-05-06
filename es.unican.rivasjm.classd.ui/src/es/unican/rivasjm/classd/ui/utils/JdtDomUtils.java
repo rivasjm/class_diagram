@@ -17,9 +17,12 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.ArrayType;
+import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.PrimitiveType;
@@ -32,8 +35,8 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 public class JdtDomUtils {
 	
-	public static List<ICompilationUnit> getCompilationUnits(IJavaElement element) {
-		List<ICompilationUnit> units = new ArrayList<>();
+	public static Set<ICompilationUnit> getCompilationUnits(IJavaElement element) {
+		Set<ICompilationUnit> units = new HashSet<>();
 		if (element == null) {
 			return units;
 		}
@@ -53,8 +56,8 @@ public class JdtDomUtils {
 		return units;
 	}
 	
-	public static Set<TypeDeclaration> getDeclaredTypes(List<ICompilationUnit> units) {
-		final Set<TypeDeclaration> types = new HashSet<>();
+	public static Set<AbstractTypeDeclaration> getDeclaredTypesAndEnums(Set<ICompilationUnit> units) {
+		final Set<AbstractTypeDeclaration> types = new HashSet<>();
 		
 		for (ICompilationUnit unit : units) {
 			final ASTParser parser = ASTParser.newParser(JDTUtils.getLatestJLSLevel());
@@ -65,6 +68,12 @@ public class JdtDomUtils {
 			node.accept(new ASTVisitor() {
 				@Override
 				public boolean visit(TypeDeclaration node) {
+					types.add(node);
+					return super.visit(node);
+				}
+				
+				@Override
+				public boolean visit(EnumDeclaration node) {
 					types.add(node);
 					return super.visit(node);
 				}
@@ -215,6 +224,20 @@ public class JdtDomUtils {
 		}
 		
 		return b1.getQualifiedName().equals(b2.getQualifiedName());
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static List<FieldDeclaration> getFieldDeclarations(AbstractTypeDeclaration type) {
+		List<FieldDeclaration> fields = new ArrayList<>();
+		type.bodyDeclarations().stream().filter(b -> b instanceof FieldDeclaration).forEach(f -> fields.add((FieldDeclaration) f));
+		return fields;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static List<MethodDeclaration> getMethodDeclarations(AbstractTypeDeclaration type) {
+		List<MethodDeclaration> methods = new ArrayList<>();
+		type.bodyDeclarations().stream().filter(b -> b instanceof MethodDeclaration).forEach(m -> methods.add((MethodDeclaration) m));
+		return methods;
 	}
 
 }

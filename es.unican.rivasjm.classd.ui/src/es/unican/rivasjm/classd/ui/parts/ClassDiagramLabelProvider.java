@@ -19,7 +19,7 @@ import org.eclipse.zest.core.widgets.GraphNode;
 import org.eclipse.zest.core.widgets.ZestStyles;
 
 import es.unican.rivasjm.classd.ui.model.MClass;
-import es.unican.rivasjm.classd.ui.model.MContentionRelationship;
+import es.unican.rivasjm.classd.ui.model.MAssociationRelationship;
 import es.unican.rivasjm.classd.ui.model.MInheritanceRelationship;
 
 public class ClassDiagramLabelProvider extends LabelProvider implements IFigureProvider, ISelfStyleProvider, IConnectionStyleProvider {
@@ -90,8 +90,8 @@ public class ClassDiagramLabelProvider extends LabelProvider implements IFigureP
 			cf.setConnectionRouter(new ManhattanConnectionRouter());
 		}
 		
-		if (element instanceof MContentionRelationship) {
-			doStyleContentionRelationship((MContentionRelationship) element, connection);
+		if (element instanceof MAssociationRelationship) {
+			doStyleContentionRelationship((MAssociationRelationship) element, connection);
 		
 		} else if (element instanceof MInheritanceRelationship) {
 			doStyleInheritanceRelationship((MInheritanceRelationship)element, connection);
@@ -117,7 +117,7 @@ public class ClassDiagramLabelProvider extends LabelProvider implements IFigureP
 		}
 	}
 
-	private void doStyleContentionRelationship(MContentionRelationship rel, GraphConnection connection) {
+	private void doStyleContentionRelationship(MAssociationRelationship rel, GraphConnection connection) {
 		if (connection.getConnectionFigure() instanceof PolylineConnection) {
 			PolylineConnection cf = (PolylineConnection) connection.getConnectionFigure();
 			

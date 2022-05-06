@@ -16,6 +16,7 @@ import es.unican.rivasjm.classd.ui.diagram.CompartmentFigure;
 import es.unican.rivasjm.classd.ui.model.MAttribute;
 import es.unican.rivasjm.classd.ui.model.MClass;
 import es.unican.rivasjm.classd.ui.model.MElement;
+import es.unican.rivasjm.classd.ui.model.MEnum;
 import es.unican.rivasjm.classd.ui.model.MOperation;
 
 public class ClassFigure extends Figure {
@@ -47,6 +48,14 @@ public class ClassFigure extends Figure {
 			Label label = new Label(clazz.getName());
 			setFontStyle(label, clazz);
 			add(label);
+		}
+		
+		// enum values (if enum)
+		if (clazz instanceof MEnum) {
+			for (String value : ((MEnum) clazz).getValues()) {
+				Label label = new Label(value);
+				attributeFigure.add(label);
+			}
 		}
 		
 		// attributes

@@ -1,6 +1,6 @@
 package es.unican.rivasjm.classd.ui.model;
 
-public class MContentionRelationship extends MRelationship {
+public class MAssociationRelationship extends MRelationship {
 	
 	private String name;
 	private String multiplicity;
