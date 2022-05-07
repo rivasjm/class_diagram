@@ -75,7 +75,6 @@ public class ClassDiagramPart {
 	}
 
 	public void setInput(MClassDiagram diagram) {
-		System.out.println(diagram.toString());
 		graph.setInput(diagram);
 	}
 	

@@ -5,6 +5,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceVisitor;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -36,13 +40,26 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 public class JdtDomUtils {
 	
 	public static Set<ICompilationUnit> getCompilationUnits(IJavaElement element) {
-		Set<ICompilationUnit> units = new HashSet<>();
+		final Set<ICompilationUnit> units = new HashSet<>();
 		if (element == null) {
 			return units;
 		}
 		
 		if (element instanceof ICompilationUnit) {
 			units.add((ICompilationUnit) element);
+			
+		} else if (element instanceof IProject) {
+			IProject prj = (IProject) element;
+			try {
+				prj.accept(new IResourceVisitor() {
+					@Override
+					public boolean visit(IResource resource) throws CoreException {
+						System.out.println(resource);
+						return true;
+					}
+				});
+			} catch (CoreException e) {}
+			
 		
 		} else if (element instanceof IJavaProject || element instanceof IPackageFragmentRoot || element instanceof IPackageFragment) {
 			try {
