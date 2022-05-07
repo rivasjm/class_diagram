@@ -4,6 +4,9 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.eclipse.draw2d.IFigure;
+import org.eclipse.draw2d.SWTGraphics;
+import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.ui.di.Focus;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
@@ -22,7 +25,6 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.ImageLoader;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.zest.core.viewers.GraphViewer;
@@ -32,6 +34,8 @@ import org.eclipse.zest.layouts.algorithms.TreeLayoutAlgorithm;
 import es.unican.rivasjm.classd.ui.model.MClassDiagram;
 
 public class ClassDiagramPart {
+	
+	private static final int IMAGE_SAVE_PADDING = 10;
 	
 	private GraphViewer graph;
 	
@@ -86,21 +90,31 @@ public class ClassDiagramPart {
 	
 	public boolean saveAsImage(String path) {
 		boolean correct = false;
-		final GC gc = new GC(graph.getControl());
-		final Rectangle bounds = graph.getControl().getBounds();
-		Image image = new Image(graph.getControl().getDisplay(), bounds);
-		try {
-		    gc.copyArea(image, 0, 0);
-		    ImageLoader imageLoader = new ImageLoader();
-		    imageLoader.data = new ImageData[] { image.getImageData() };
-		    imageLoader.save(path, SWT.IMAGE_PNG);
-		    correct = true;
 		
-		} catch (Exception e) {
+		final IFigure contents = graph.getGraphControl().getContents();		
+		final Dimension size = contents.getSize();
+		final Image image = new Image(graph.getControl().getDisplay(), 
+				size.width + 2 * IMAGE_SAVE_PADDING, 
+				size.height + 2 * IMAGE_SAVE_PADDING);
+		final GC gc = new GC(image);
+		
+		try {
+			final SWTGraphics graphics = new SWTGraphics(gc);
+			graphics.translate(IMAGE_SAVE_PADDING, IMAGE_SAVE_PADDING);
+			graphics.translate(contents.getBounds().getLocation().getNegated());
+			contents.paint(graphics);
+
+			final ImageData imageData = image.getImageData();
+			ImageLoader imageLoader = new ImageLoader();
+			imageLoader.data = new ImageData[] { imageData };
+			imageLoader.save(path, SWT.IMAGE_PNG);
+			correct = true;
 			
+		} catch (Exception e) {
+
 		} finally {
-		    image.dispose();
-		    gc.dispose();
+			image.dispose();
+			gc.dispose();
 		}
 		
 		return correct;
