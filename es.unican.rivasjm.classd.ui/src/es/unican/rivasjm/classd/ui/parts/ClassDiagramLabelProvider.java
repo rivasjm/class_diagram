@@ -148,7 +148,6 @@ public class ClassDiagramLabelProvider extends LabelProvider implements IFigureP
 
 	@Override
 	public void selfStyleNode(Object element, GraphNode node) {
-		// TODO Auto-generated method stub
 		
 	}
 
