@@ -1,20 +1,14 @@
 package es.unican.rivasjm.classd.ui.parts;
 
-import static java.util.stream.Collectors.toList;
-
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceVisitor;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.TreeSelection;
@@ -55,14 +49,18 @@ public class ClassDiagramDropTargetListener implements DropTargetListener{
 	
 	public static IJavaElement[] getJavaElementsFromTreeSelection(TreeSelection selection) {
 		List<IJavaElement> elements = new ArrayList<>();
-		
-		for (Object s : selection) {
-			if (s instanceof IJavaElement) {
-				elements.add((IJavaElement) s);
-			
-			} else if (s instanceof IProject) {
-				IJavaProject javaProject = JavaCore.create((IProject) s);
-				elements.add(javaProject);
+		if (selection != null) {
+			Iterator<?> iterator = selection.iterator();
+	
+			while (iterator.hasNext()) {
+				Object s = iterator.next();
+				if (s instanceof IJavaElement) {
+					elements.add((IJavaElement) s);
+
+				} else if (s instanceof IProject) {
+					IJavaProject javaProject = JavaCore.create((IProject) s);
+					elements.add(javaProject);
+				}
 			}
 		}
 		
