@@ -36,7 +36,7 @@ import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
-public class JavaUtils {
+public class JDTUtils {
 	
 	/**
 	 * Get all compilation units from the given java element
@@ -310,10 +310,19 @@ public class JavaUtils {
 		return methods;
 	}
 	
+	/**
+	 * Returns the latest available JLS level code. 
+	 * 
+	 * <p> The method to get this code has been changing during the last versions of JDT.
+	 * To make this plug-in independent on the version of JDT, this method tries to
+	 * determine the latest JLS code using Reflection
+	 * 
+	 * @return the latest available JLS level code
+	 */
 	static int getLatestJLSLevel() {
 		Class<?> clazz = AST.class;
 		
-		// try calling getLatestJLS (this is the latest API)
+		// try calling getLatestJLS (this is in the latest API)
 		try {
 			Method method = clazz.getMethod("getJLSLatest");
 			Object level = method.invoke(clazz);
@@ -323,7 +332,7 @@ public class JavaUtils {
 		} catch (Exception e) {
 		}
 		
-		// try accessing JLS_Latest
+		// if it failed, try accessing JLS_Latest
 		try {
 			Field field = clazz.getField("JLS_Latest");
 			field.setAccessible(true);
@@ -334,8 +343,8 @@ public class JavaUtils {
 		} catch (Exception e) {
 		}
 		
-		// try accessing the highest JLSx value available, starting from 11
-		for (int i=11; i>0; i--) {
+		// if it failed, try accessing the highest JLSx value available, starting from 11
+		for (int i = 11; i > 1; i--) {
 			try {	
 				Field field = clazz.getField("JLS" + i);
 				field.setAccessible(true);

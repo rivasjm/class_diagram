@@ -17,14 +17,14 @@ import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 
-import es.unican.rivasjm.classd.ui.utils.JavaUtils;
+import es.unican.rivasjm.classd.ui.utils.JDTUtils;
 
 public class ClassDiagramFactory {
 	
-	/** Parsed type declarations (enums and classes) */
+	/** Parsed type declarations (enum's and classes) */
 	final Set<AbstractTypeDeclaration> knownTypes;  
 	
-	/** Fully qualified name -> generate classes map */
+	/** Fully qualified name -> generated class */
 	private Map<String, MClass> classes;
 	
 	public ClassDiagramFactory(IJavaElement... elements) {		
@@ -33,11 +33,11 @@ public class ClassDiagramFactory {
 		// find all compilation units
 		if (elements != null) {
 			for (IJavaElement element: elements) {
-				cunits.addAll(JavaUtils.getCompilationUnits(element));
+				cunits.addAll(JDTUtils.getCompilationUnits(element));
 			}
 		}
 		
-		this.knownTypes = JavaUtils.getDeclaredTypesAndEnums(cunits);
+		this.knownTypes = JDTUtils.getDeclaredTypesAndEnums(cunits);
 		this.classes = new HashMap<>();
 	}
 	
@@ -91,14 +91,14 @@ public class ClassDiagramFactory {
 		}
 		
 		// add methods
-		for (MethodDeclaration method : JavaUtils.getMethodDeclarations(type)) {
+		for (MethodDeclaration method : JDTUtils.getMethodDeclarations(type)) {
 			MOperation operation = getMOperation(method);
 			clazz.addOperation(operation);
 		}
 		
 		// add attributes
 		// ignore attributes of "known" types (those should be MAssociationRelationship's, i.e., arrows)
-		for (FieldDeclaration field : JavaUtils.getFieldDeclarations(type)) {
+		for (FieldDeclaration field : JDTUtils.getFieldDeclarations(type)) {
 			if (!fieldIsReference(field)) {
 				MAttribute attr = getMAttribute(field);
 				clazz.addAttribute(attr);				
@@ -149,7 +149,7 @@ public class ClassDiagramFactory {
 		MOperation operation = new MOperation();
 		
 		operation.setName(method.getName().getIdentifier());
-		String typeString = JavaUtils.getTypeString(method.getReturnType2());
+		String typeString = JDTUtils.getTypeString(method.getReturnType2());
 //		if (JavaUtils.isMultiple(method.getReturnType2())) {
 //			typeString += "[]";
 //		}
@@ -164,8 +164,8 @@ public class ClassDiagramFactory {
 				MOperationParameter param = new MOperationParameter();
 				SingleVariableDeclaration svd = (SingleVariableDeclaration) object;
 				
-				param.setName(JavaUtils.getName(svd.getName()));
-				param.setType(JavaUtils.getTypeString(svd.getType()));
+				param.setName(JDTUtils.getName(svd.getName()));
+				param.setType(JDTUtils.getTypeString(svd.getType()));
 				operation.addParameter(param);
 			}
 		}
@@ -181,8 +181,8 @@ public class ClassDiagramFactory {
 	private static MAttribute getMAttribute(FieldDeclaration field) {
 		MAttribute attr = new MAttribute();
 		
-		attr.setName(JavaUtils.getFieldName(field));
-		String typeString = JavaUtils.getTypeString(field.getType());
+		attr.setName(JDTUtils.getFieldName(field));
+		String typeString = JDTUtils.getTypeString(field.getType());
 //		if (JdtDomUtils.isMultiple(field.getType())) {
 //			typeString += "[]";
 //		}
@@ -200,20 +200,20 @@ public class ClassDiagramFactory {
 	 */
 	private List<MAssociationRelationship> getAssociationRelationships(AbstractTypeDeclaration type) {
 		final List<MAssociationRelationship> relationships = new ArrayList<>();
-		final MClass source = classes.get(JavaUtils.getFullyQualifiedName(type));
+		final MClass source = classes.get(JDTUtils.getFullyQualifiedName(type));
 		
-		for (FieldDeclaration field : JavaUtils.getFieldDeclarations(type)) {
-			String fieldName = JavaUtils.getFieldName(field);
+		for (FieldDeclaration field : JDTUtils.getFieldDeclarations(type)) {
+			String fieldName = JDTUtils.getFieldName(field);
 			
 			if (fieldIsReference(field)) {
-				Type resolvedType = JavaUtils.resolveTypeForUML(field.getType());
-				MClass target = classes.get(JavaUtils.getFullyQualifiedName(resolvedType));
+				Type resolvedType = JDTUtils.resolveTypeForUML(field.getType());
+				MClass target = classes.get(JDTUtils.getFullyQualifiedName(resolvedType));
 				
 				MAssociationRelationship r = new MAssociationRelationship();
 				r.setSource(source);
 				r.setTarget(target);
 				r.setName(fieldName);
-				r.setMultiplicity(JavaUtils.isMultiple(field.getType()) ? "*" : "");
+				r.setMultiplicity(JDTUtils.isMultiple(field.getType()) ? "*" : "");
 				relationships.add(r);
 			}
 		}
@@ -228,14 +228,14 @@ public class ClassDiagramFactory {
 	 */
 	private List<MInheritanceRelationship> getInheritanceRelationships(AbstractTypeDeclaration type) {
 		final List<MInheritanceRelationship> relationships = new ArrayList<>();
-		final MClass subclass = classes.get(JavaUtils.getFullyQualifiedName(type));
+		final MClass subclass = classes.get(JDTUtils.getFullyQualifiedName(type));
 		
 		/*
 		 *  Find superclass. There can only be one at most.
 		 *  Enum's cannot have a superclass
 		 */
 		if (type instanceof TypeDeclaration && ((TypeDeclaration) type).getSuperclassType() != null) {
-			String superQN = JavaUtils.getFullyQualifiedName(((TypeDeclaration) type).getSuperclassType());
+			String superQN = JDTUtils.getFullyQualifiedName(((TypeDeclaration) type).getSuperclassType());
 			if (classes.containsKey(superQN)) {
 				MClass superClass = classes.get(superQN);
 				MInheritanceRelationship relationship = new MInheritanceRelationship();
@@ -249,8 +249,8 @@ public class ClassDiagramFactory {
 		 *  Find super-interfaces. There can be several.
 		 *  Enum's can have super-interfaces
 		 */
-		for (Type interfaceTypeObj : JavaUtils.getSuperInterfaces(type)) {
-			String superQN = JavaUtils.getFullyQualifiedName(interfaceTypeObj);
+		for (Type interfaceTypeObj : JDTUtils.getSuperInterfaces(type)) {
+			String superQN = JDTUtils.getFullyQualifiedName(interfaceTypeObj);
 			if (classes.containsKey(superQN)) {
 				MClass superInterface = classes.get(superQN);
 				MInheritanceRelationship relationship = new MInheritanceRelationship();
@@ -288,8 +288,8 @@ public class ClassDiagramFactory {
 	 * @return
 	 */
 	private boolean fieldIsReference(FieldDeclaration field) {
-		final Type resolvedType = JavaUtils.resolveTypeForUML(field.getType());
-		String fullyQualifiedName = JavaUtils.getFullyQualifiedName(resolvedType);
+		final Type resolvedType = JDTUtils.resolveTypeForUML(field.getType());
+		String fullyQualifiedName = JDTUtils.getFullyQualifiedName(resolvedType);
 		return classes.containsKey(fullyQualifiedName);
 	}
 	
