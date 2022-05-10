@@ -1,17 +1,100 @@
 package es.unican.rivasjm.classd.ui.utils;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.IParent;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeHierarchy;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.ArrayType;
+import org.eclipse.jdt.core.dom.EnumDeclaration;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.ParameterizedType;
+import org.eclipse.jdt.core.dom.QualifiedName;
+import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 public class JavaUtils {
+	
+	/**
+	 * Get all compilation units from the given java element
+	 * @param element
+	 * @return
+	 */
+	public static Set<ICompilationUnit> getCompilationUnits(IJavaElement element) {
+		final Set<ICompilationUnit> units = new HashSet<>();
+		if (element == null) {
+			return units;
+		}
+		
+		if (element instanceof ICompilationUnit) {
+			units.add((ICompilationUnit) element);
+		
+		} else if (element instanceof IJavaProject || element instanceof IPackageFragmentRoot || element instanceof IPackageFragment) {
+			try {
+				for (IJavaElement child : ((IParent) element).getChildren()) {
+					units.addAll(getCompilationUnits(child));
+				}
+				
+			} catch (JavaModelException e) {}	
+		}
+		
+		return units;
+	}
+	
+	/**
+	 * Get all types and enum's declared in the given compilation units
+	 * @param units
+	 * @return
+	 */
+	public static Set<AbstractTypeDeclaration> getDeclaredTypesAndEnums(Set<ICompilationUnit> units) {
+		final Set<AbstractTypeDeclaration> types = new HashSet<>();
+		
+		for (ICompilationUnit unit : units) {
+			final ASTParser parser = ASTParser.newParser(getLatestJLSLevel());
+			parser.setResolveBindings(true);
+			parser.setSource(unit);
+			final ASTNode node = parser.createAST(new NullProgressMonitor());
+
+			node.accept(new ASTVisitor() {
+				@Override
+				public boolean visit(TypeDeclaration node) {
+					types.add(node);
+					return super.visit(node);
+				}
+				
+				@Override
+				public boolean visit(EnumDeclaration node) {
+					types.add(node);
+					return super.visit(node);
+				}
+			});
+		}
+		
+		return types;
+	}
 	
 	/**
 	 * 
@@ -19,6 +102,20 @@ public class JavaUtils {
 	 * @return
 	 */
 	public static String getFullyQualifiedName(Type type) {
+		if (type == null) {
+			return null;
+		}
+		
+		final ITypeBinding binding = type.resolveBinding();
+		return binding != null ? binding.getQualifiedName() : null;
+	}
+	
+	/**
+	 * 
+	 * @param type
+	 * @return
+	 */
+	public static String getFullyQualifiedName(AbstractTypeDeclaration type) {
 		if (type == null) {
 			return null;
 		}
@@ -105,6 +202,153 @@ public class JavaUtils {
 		} catch (JavaModelException e) {}
 		
 		return false;
+	}
+	
+	/**
+	 * 
+	 * @param type
+	 * @return
+	 */
+	public static String getTypeString(Type type) {		
+		if (type == null) {
+			return ""; 
+		}
+		
+		return type.toString();
+	}
+	
+	/**
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public static String getName(Name name) {
+		if (name.isSimpleName()) {
+			SimpleName sn = (SimpleName) name;
+			return sn.getIdentifier();
+		
+		} else if (name.isQualifiedName()) {
+			QualifiedName qn = (QualifiedName)name;
+			return getName(qn.getName());
+		}
+		
+		return "";
+	}
+	
+	/**
+	 * 
+	 * @param field
+	 * @return
+	 */
+	public static String getFieldName(FieldDeclaration field) {
+		final StringBuilder sb = new StringBuilder();
+		field.accept(new ASTVisitor() {
+			@Override
+			public boolean visit(VariableDeclarationFragment node) {
+				sb.append(getName(node.getName()));
+				return false;
+			}
+		});
+		
+		return sb.toString();
+	}
+	
+	/**
+	 * 
+	 * @param type
+	 * @return
+	 */
+	public static List<Type> getSuperInterfaces(AbstractTypeDeclaration type) {
+		List<Type> interfaces = new ArrayList<>();
+		
+		@SuppressWarnings("rawtypes")
+		List superInterfaceTypes = null;
+		if (type != null && type instanceof TypeDeclaration) {
+			superInterfaceTypes = ((TypeDeclaration)type).superInterfaceTypes();
+		} else if (type != null && type instanceof EnumDeclaration) {
+			superInterfaceTypes = ((EnumDeclaration)type).superInterfaceTypes();
+		}
+		
+		if (superInterfaceTypes != null) {
+			for (Object object : superInterfaceTypes) {
+				if (object instanceof Type) {
+					interfaces.add((Type) object);
+				}
+			}
+		}
+		
+		return interfaces;
+	}
+	
+	/**
+	 * 
+	 * @param type
+	 * @return
+	 */
+	public static List<FieldDeclaration> getFieldDeclarations(AbstractTypeDeclaration type) {
+		List<FieldDeclaration> fields = new ArrayList<>();
+		for (Object decl : type.bodyDeclarations()) {
+			if (decl instanceof FieldDeclaration) {
+				fields.add((FieldDeclaration) decl);
+			}
+		}			
+		return fields;
+	}
+	
+	/**
+	 * 
+	 * @param type
+	 * @return
+	 */
+	public static List<MethodDeclaration> getMethodDeclarations(AbstractTypeDeclaration type) {
+		List<MethodDeclaration> methods = new ArrayList<>();
+		for (Object decl : type.bodyDeclarations()) {
+			if (decl instanceof MethodDeclaration) {
+				methods.add((MethodDeclaration) decl);
+			}
+		}		
+		return methods;
+	}
+	
+	static int getLatestJLSLevel() {
+		Class<?> clazz = AST.class;
+		
+		// try calling getLatestJLS (this is the latest API)
+		try {
+			Method method = clazz.getMethod("getJLSLatest");
+			Object level = method.invoke(clazz);
+			if (level instanceof Integer) {
+				return (Integer)level;
+			}
+		} catch (Exception e) {
+		}
+		
+		// try accessing JLS_Latest
+		try {
+			Field field = clazz.getField("JLS_Latest");
+			field.setAccessible(true);
+			Object level = field.get(clazz);
+			if (level instanceof Integer) {
+				return (Integer)level;
+			}
+		} catch (Exception e) {
+		}
+		
+		// try accessing the highest JLSx value available, starting from 11
+		for (int i=11; i>0; i--) {
+			try {	
+				Field field = clazz.getField("JLS" + i);
+				field.setAccessible(true);
+				Object level = field.get(clazz);
+				if (level instanceof Integer) {
+					return (Integer)level;
+				}
+			} catch (Exception e) {
+			}
+		}
+		
+		// if absolutely everything fails, return hard-coded value 4, which should be JLS4
+		return 4;
 	}
 
 }

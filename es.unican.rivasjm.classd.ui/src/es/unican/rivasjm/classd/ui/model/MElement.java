@@ -5,7 +5,6 @@ public abstract class MElement {
 	private boolean isAbstract = false;
 	private boolean isStatic = false;
 	
-	
 	public boolean isAbstract() {
 		return isAbstract;
 	}

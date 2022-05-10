@@ -8,21 +8,24 @@ import java.util.Objects;
 
 
 public class MClass extends MElement {
-	
-	private static final String INTERFACE_PREFIX = "<<interface>>";
-	
+		
 	private MClassDiagram diagram;
 	
 	private String name;
 	private String qualifiedName;
 	private boolean isInterface = false;
+	private boolean isEnum = false;
 	
 	private final List<MAttribute> attributes;
 	private final List<MOperation> operations;
 	
+	private final List<String> enumValues;
+	
+	
 	public MClass() {		
 		this.attributes = new ArrayList<>();
 		this.operations = new ArrayList<>();
+		this.enumValues = new ArrayList<>();
 	}
 
 	/*
@@ -54,6 +57,14 @@ public class MClass extends MElement {
 		this.isInterface = _interface;
 	}
 	
+	public boolean isEnum() {
+		return isEnum;
+	}
+
+	public void setEnum(boolean _enum) {
+		this.isEnum = _enum;
+	}
+	
 	public String getQualifiedName() {
 		return qualifiedName;
 	}
@@ -75,12 +86,23 @@ public class MClass extends MElement {
 		}
 	}
 	
+	public void addEnumValue(String value) {
+		if (value != null) {
+			this.enumValues.add(value);
+		}
+	}
+	
 	public List<MAttribute> getAttributes() {
 		return unmodifiableList(attributes);
 	}
 	
 	public List<MOperation> getOperations() {
 		return unmodifiableList(operations);
+	}
+	
+	
+	public List<String> getValues() {
+		return unmodifiableList(enumValues);
 	}
 	
 	

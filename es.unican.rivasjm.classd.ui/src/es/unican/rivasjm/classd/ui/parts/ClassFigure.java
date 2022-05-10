@@ -4,7 +4,6 @@ import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.Label;
 import org.eclipse.draw2d.LineBorder;
-import org.eclipse.draw2d.PositionConstants;
 import org.eclipse.draw2d.ToolbarLayout;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
@@ -17,7 +16,6 @@ import es.unican.rivasjm.classd.ui.diagram.CompartmentFigure;
 import es.unican.rivasjm.classd.ui.model.MAttribute;
 import es.unican.rivasjm.classd.ui.model.MClass;
 import es.unican.rivasjm.classd.ui.model.MElement;
-import es.unican.rivasjm.classd.ui.model.MEnum;
 import es.unican.rivasjm.classd.ui.model.MOperation;
 
 public class ClassFigure extends Figure {
@@ -48,7 +46,7 @@ public class ClassFigure extends Figure {
 		{
 			if (clazz.isInterface()) {
 				add(new Label("<<interface>>"));
-			} else if (clazz instanceof MEnum) {
+			} else if (clazz.isEnum()) {
 				add(new Label("<<enumeration>>"));
 			}
 			
@@ -58,8 +56,8 @@ public class ClassFigure extends Figure {
 		}
 		
 		// enum values (if enum)
-		if (clazz instanceof MEnum) {
-			for (String value : ((MEnum) clazz).getValues()) {
+		if (clazz.isEnum()) {
+			for (String value : clazz.getValues()) {
 				Label label = new Label(value);
 				attributeFigure.add(label);
 			}
