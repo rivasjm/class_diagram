@@ -1,0 +1,10 @@
+name: build-class-diagram
+on: [push]
+jobs:
+  build-class-diagram:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build plug-in
+        working-directory: ./es.unican.rivasjm.classd.parent
+        run: mvn clean package
