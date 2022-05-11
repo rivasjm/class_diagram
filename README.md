@@ -7,5 +7,3 @@ Automatically generate a simple class diagram in Eclipse from your java projects
 
 Eclipse update-site:
 https://rivasjm.github.io/class_diagram/
-
-## Usage
