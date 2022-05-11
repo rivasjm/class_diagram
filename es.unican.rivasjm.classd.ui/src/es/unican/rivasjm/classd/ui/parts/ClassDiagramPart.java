@@ -66,6 +66,10 @@ public class ClassDiagramPart {
 		initDND(graph.getControl());
 	}
 	
+	/**
+	 * Initialize the drag and drop functionality of this part. 
+	 * @param control
+	 */
 	private void initDND(Control control) {
 		final DropTarget dropTarget = new DropTarget(control, DND.DROP_COPY | DND.DROP_DEFAULT);
 		dropTarget.setTransfer(new Transfer[] {LocalSelectionTransfer.getTransfer()});
@@ -74,6 +78,10 @@ public class ClassDiagramPart {
 
 	public void setInput(MClassDiagram diagram) {
 		graph.setInput(diagram);
+	}
+	
+	public void clear() {
+		graph.setInput(null);
 	}
 	
 	@Focus
@@ -113,8 +121,5 @@ public class ClassDiagramPart {
 		
 		return correct;
 	}
-
-	public void clear() {
-		graph.setInput(null);
-	}
+	
 }

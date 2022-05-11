@@ -77,6 +77,7 @@ public class ClassFigure extends Figure {
 			methodFigure.add(label);
 		}
 		
+		// add attributes and methods subfigures
 		if (!attributeFigure.getChildren().isEmpty()) {
 			add(attributeFigure);			
 		}
