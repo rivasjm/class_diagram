@@ -20,6 +20,7 @@ import org.eclipse.zest.core.widgets.ZestStyles;
 
 import es.unican.rivasjm.classd.ui.model.MClass;
 import es.unican.rivasjm.classd.ui.model.MAssociationRelationship;
+import es.unican.rivasjm.classd.ui.model.MBidirectionalAssociationRelationship;
 import es.unican.rivasjm.classd.ui.model.MInheritanceRelationship;
 
 public class ClassDiagramLabelProvider extends LabelProvider implements IFigureProvider, ISelfStyleProvider, IConnectionStyleProvider {
@@ -92,12 +93,15 @@ public class ClassDiagramLabelProvider extends LabelProvider implements IFigureP
 		
 		if (element instanceof MAssociationRelationship) {
 			doStyleContentionRelationship((MAssociationRelationship) element, connection);
+			
+		} else if (element instanceof MBidirectionalAssociationRelationship) {
+			doStyleBidirectionalContentionRelationship((MBidirectionalAssociationRelationship) element, connection);
 		
 		} else if (element instanceof MInheritanceRelationship) {
 			doStyleInheritanceRelationship((MInheritanceRelationship)element, connection);
 		}
 	}
-	
+
 	private void doStyleInheritanceRelationship(MInheritanceRelationship rel, GraphConnection connection) {
 		if (connection.getConnectionFigure() instanceof PolylineConnection) {
 			PolylineConnection cf = (PolylineConnection) connection.getConnectionFigure();
@@ -115,6 +119,33 @@ public class ClassDiagramLabelProvider extends LabelProvider implements IFigureP
 				cf.setSourceDecoration(decoration);
 			}
 		}
+	}
+	
+	private void doStyleBidirectionalContentionRelationship(MBidirectionalAssociationRelationship bidi, GraphConnection connection) {
+		if (connection.getConnectionFigure() instanceof PolylineConnection) {
+			PolylineConnection cf = (PolylineConnection) connection.getConnectionFigure();
+			
+			// direct label
+			{
+				MAssociationRelationship rel = bidi.getDirect();
+				ConnectionEndpointLocator relationshipLocator = new ConnectionEndpointLocator(cf, true);
+				relationshipLocator.setUDistance(10);
+				relationshipLocator.setVDistance(-5);
+				Label relationshipLabel = new Label(rel.getVisibility().getSymbol() + rel.getName() + " " + rel.getMultiplicity());
+				cf.add(relationshipLabel, relationshipLocator);
+			}
+			
+			// opposite label
+			{
+				MAssociationRelationship rel = bidi.getOpposite();
+				ConnectionEndpointLocator relationshipLocator = new ConnectionEndpointLocator(cf, false);
+				relationshipLocator.setUDistance(10);
+				relationshipLocator.setVDistance(-5);
+				Label relationshipLabel = new Label(rel.getVisibility().getSymbol() + rel.getName() + " " + rel.getMultiplicity());
+				cf.add(relationshipLabel, relationshipLocator);
+			}
+		}
+		
 	}
 
 	private void doStyleContentionRelationship(MAssociationRelationship rel, GraphConnection connection) {

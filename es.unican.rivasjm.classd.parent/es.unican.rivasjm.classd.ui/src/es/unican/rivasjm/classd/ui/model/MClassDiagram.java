@@ -33,6 +33,10 @@ public class MClassDiagram {
 	public void addRelationship(MRelationship relationship) {
 		this.relationships.add(Objects.requireNonNull(relationship));
 	}
+	
+	public boolean removeRelationship(MRelationship relationship) {
+		return this.relationships.remove(relationship);
+	}
 
 	@Override
 	public String toString() {

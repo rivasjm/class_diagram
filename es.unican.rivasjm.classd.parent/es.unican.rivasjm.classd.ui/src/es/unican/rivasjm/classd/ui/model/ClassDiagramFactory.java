@@ -1,12 +1,18 @@
 package es.unican.rivasjm.classd.ui.model;
 
+import static java.util.stream.Collectors.toList;
+
 import java.lang.reflect.Modifier;
+import java.util.AbstractMap;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -84,6 +90,9 @@ public class ClassDiagramFactory {
 			}			
 		}
 		
+		// merge bidirectional associations
+		mergeBidirectionalAssociations(diagram);
+		
 		// get inheritance relationships (super-classes and super-interfaces)
 		for (AbstractTypeDeclaration type : knownTypes) {
 			List<MInheritanceRelationship> inheritances = getInheritanceRelationships(type);
@@ -91,7 +100,41 @@ public class ClassDiagramFactory {
 			for (MInheritanceRelationship r : inheritances) {
 				diagram.addRelationship(r);
 			}
+		}
+	}
+
+	private static void mergeBidirectionalAssociations(MClassDiagram diagram) {
+		final List<MAssociationRelationship> associations = diagram.getRelationships().stream()
+			.filter(r -> r instanceof MAssociationRelationship)
+			.map(r -> (MAssociationRelationship)r)
+			.collect(toList());
+		
+		final Set<MAssociationRelationship> removed = new HashSet<>();
+		
+		for (MAssociationRelationship assoc : associations) {
+			if (removed.contains(assoc)) {
+				continue;
+			}
 			
+			final MClass source = assoc.getSource();
+			final MClass target = assoc.getTarget();
+			
+			// find all associations that are opposite
+			final List<MAssociationRelationship> opposites = associations.stream()
+				.filter(a -> a.getSource().equals(target) && a.getTarget().equals(source) && !removed.contains(a))
+				.collect(toList());
+			
+			// only merge if there is only one opposite
+			if (opposites.size() == 1) {
+				MBidirectionalAssociationRelationship bidi = new MBidirectionalAssociationRelationship();
+				bidi.setDirect(assoc);
+				bidi.setOpposite(opposites.get(0));
+				diagram.removeRelationship(assoc);
+				diagram.removeRelationship(opposites.get(0));
+				removed.add(assoc);
+				removed.add(opposites.get(0));
+				diagram.addRelationship(bidi);
+			}
 		}
 	}
 
