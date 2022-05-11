@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/es.unican.rivasjm.classd.ui.feature_1.0.0.202205101957.jar" id="es.unican.rivasjm.classd.ui.feature" version="1.0.0.202205101957">
+   <feature id="es.unican.rivasjm.classd.ui.feature" version="0.0.0">
       <category name="es.unican.rivasjm.classd.ui.category"/>
    </feature>
    <category-def name="es.unican.rivasjm.classd.ui.category" label="Java Class Diagram"/>

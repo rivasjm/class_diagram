@@ -2,7 +2,7 @@
 <feature
       id="es.unican.rivasjm.classd.ui.feature"
       label="Class Diagram"
-      version="1.0.0.qualifier">
+      version="1.0.0.202205110920">
 
    <description url="http://www.example.com/description">
       [Enter Feature Description here.]
@@ -36,9 +36,9 @@
 
    <plugin
          id="es.unican.rivasjm.classd.ui"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
+         download-size="42"
+         install-size="100"
+         version="1.0.0.202205110920"
          unpack="false"/>
 
 </feature>
