@@ -4,4 +4,7 @@ Automatically generate a simple class diagram in Eclipse from your java projects
 
 ## Installation
 
+Eclipse update-site:
+https://rivasjm.github.io/class_diagram/
+
 ## Usage
