@@ -51,7 +51,7 @@ public class ClassDiagramFactory {
 		
 		// create classes (i.e. nodes)
 		for (AbstractTypeDeclaration type : knownTypes) {
-			MClass mClass = getMClass(type); 
+			MClass mClass = getMClassWithoutAttributes(type); 
 		
 			if (mClass != null) {
 				classes.put(mClass.getQualifiedName(), mClass);
@@ -59,7 +59,23 @@ public class ClassDiagramFactory {
 			}
 		}
 		
-		// get association relationships
+		/*
+		 * Now that I know what classes will appear in the diagram, add the attributes.
+		 * I define an attribute as a field with an "unknown" type.
+		 * An "unknown" type is a type that will not have a node in the class diagram.
+		 */
+		for (AbstractTypeDeclaration type : knownTypes) {
+			for (FieldDeclaration field : JDTUtils.getFieldDeclarations(type)) {
+				if (!fieldIsReference(field)) {
+					final String qn = JDTUtils.getFullyQualifiedName(type);
+					final MClass clazz = classes.get(qn);
+					final MAttribute attr = getMAttribute(field);
+					clazz.addAttribute(attr);
+				}
+			}
+		}
+		
+		// add association relationships
 		for (AbstractTypeDeclaration type : knownTypes) {
 			List<MAssociationRelationship> associations = getAssociationRelationships(type);
 			
@@ -79,7 +95,7 @@ public class ClassDiagramFactory {
 		}
 	}
 
-	private MClass getMClass(AbstractTypeDeclaration type) {
+	private MClass getMClassWithoutAttributes(AbstractTypeDeclaration type) {
 		MClass clazz = new MClass();
 		
 		clazz.setName(type.getName().getIdentifier());		
@@ -96,14 +112,14 @@ public class ClassDiagramFactory {
 			clazz.addOperation(operation);
 		}
 		
-		// add attributes
-		// ignore attributes of "known" types (those should be MAssociationRelationship's, i.e., arrows)
-		for (FieldDeclaration field : JDTUtils.getFieldDeclarations(type)) {
-			if (!fieldIsReference(field)) {
-				MAttribute attr = getMAttribute(field);
-				clazz.addAttribute(attr);				
-			}
-		}
+//		// add attributes
+//		// ignore attributes of "known" types (those should be MAssociationRelationship's, i.e., arrows)
+//		for (FieldDeclaration field : JDTUtils.getFieldDeclarations(type)) {
+//			if (!fieldIsReference(field)) {
+//				MAttribute attr = getMAttribute(field);
+//				clazz.addAttribute(attr);				
+//			}
+//		}
 		
 		return clazz;
 	}
@@ -214,6 +230,7 @@ public class ClassDiagramFactory {
 				r.setTarget(target);
 				r.setName(fieldName);
 				r.setMultiplicity(JDTUtils.isMultiple(field.getType()) ? "*" : "");
+				r.setVisibility(getVibility(field.getModifiers()));
 				relationships.add(r);
 			}
 		}
