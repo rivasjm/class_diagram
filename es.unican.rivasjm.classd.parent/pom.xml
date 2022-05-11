@@ -15,6 +15,7 @@
 		<module>es.unican.rivasjm.classd.ui</module>
 		<module>es.unican.rivasjm.classd.ui.feature</module>
 		<module>es.unican.rivasjm.classd.ui.update</module>
+		<module>es.unican.rivasjm.classd.ui.target</module>
 	</modules>
 
 	<build>
@@ -25,9 +26,24 @@
 				<version>${tycho.version}</version>
 				<extensions>true</extensions>
 			</plugin>
+			<plugin>
+	        	<groupId>org.eclipse.tycho</groupId>
+	        	<artifactId>target-platform-configuration</artifactId>
+	        	<version>${tycho.version}</version>
+	        	<configuration>
+	          		<target>
+	            		<artifact>
+		              		<groupId>es.unican.rivasjm</groupId>
+		              		<artifactId>es.unican.rivasjm.classd.ui.target</artifactId>
+		              		<version>${project.version}</version>
+	            		</artifact>
+	          		</target>
+	          	</configuration>
+      		</plugin>          
 		</plugins>
 	</build>
 	
+	<!--
 	<repositories>
 		<repository>
 			<id>latest</id>
@@ -35,5 +51,6 @@
 			<url>${eclipse}</url>
 		</repository>
 	</repositories>
+	-->
 
 </project>
