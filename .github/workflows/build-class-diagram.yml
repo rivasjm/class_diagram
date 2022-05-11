@@ -8,10 +8,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      
       - name: Build plug-in
         working-directory: ./es.unican.rivasjm.classd.parent
         run: mvn clean package
-      - name: Deploy to personal Github.io
+      
+      - name: Deploy update-site to the repository Github Page
         uses: peaceiris/actions-gh-pages@v3
         with:
             github_token: ${{ secrets.GITHUB_TOKEN }}
